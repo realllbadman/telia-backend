@@ -65,16 +65,24 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
 @router.post("/login", response_model=LoginResponse)
 def login(login_data: LoginRequest, db: Session = Depends(get_db)):
     """
-    Login with username and password
+    Login with email/username and password
     
-    - **username**: User's username or email
+    - **email**: User's email (optional if username provided)
+    - **username**: User's username (optional if email provided)  
     - **password**: User's password
     
     Returns an access token and user information
     """
-    # Find user by username or email
+    # Find user by email or username
+    query_conditions = []
+    if login_data.email:
+        query_conditions.append(User.email == login_data.email)
+    if login_data.username:
+        query_conditions.append(User.username == login_data.username)
+    
     user = db.query(User).filter(
-        (User.username == login_data.username) | (User.email == login_data.username)
+        User.email.in_([login_data.email, login_data.username]) |
+        User.username.in_([login_data.email, login_data.username])
     ).first()
     
     if not user:

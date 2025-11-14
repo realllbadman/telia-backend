@@ -56,8 +56,15 @@ class TokenData(BaseModel):
 
 class LoginRequest(BaseModel):
     """Schema for login request"""
-    username: str
-    password: str
+    email: Optional[str] = None
+    username: Optional[str] = None
+    password: str = Field(..., min_length=8)
+
+    def model_post_init(self, __data):
+        """Ensure at least email or username is provided"""
+        if not self.email and not self.username:
+            raise ValueError("Either email or username must be provided")
+        super().model_post_init(__data)
 
 
 class LoginResponse(BaseModel):
