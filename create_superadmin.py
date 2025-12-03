@@ -1,155 +1,126 @@
 """
-Script pour créer le premier superadmin
-Usage: python create_superadmin.py
+CLI utilitaire pour gérer les comptes superadmin.
+
+Exemples d'utilisation:
+    python create_superadmin.py create-superadmin
+    python create_superadmin.py list-superadmins
 """
 
+from __future__ import annotations
+
+import click
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
-from app.database import SessionLocal, engine, Base
-from app.models import User, UserRole
+
 from app.auth.utils import get_password_hash
-from getpass import getpass
+from app.database import Base, SessionLocal, engine
+from app.models import User, UserRole
 
 
-def create_superadmin():
-    """Create the first superadmin user"""
-    
-    # Create tables if they don't exist
+def _ensure_schema() -> None:
+    """Créer le schéma de base de données lors de l'exécution locale des commandes."""
     Base.metadata.create_all(bind=engine)
-    
-    # Create database session
-    db: Session = SessionLocal()
-    
+
+
+def _open_session() -> Session:
+    """Fonction utilitaire pour ouvrir une session de base de données avec un nettoyage cohérent."""
+    return SessionLocal()
+
+
+@click.group(help="Commandes de gestion Telia.")
+def cli() -> None:
+    """Groupe racine CLI."""
+
+
+@cli.command("create-superadmin", help="Creer un compte superadmin interactif ou via options.")
+@click.option("--email", prompt="Email", type=str)
+@click.option("--username", prompt="Nom d'utilisateur", type=str)
+@click.option("--full-name", prompt="Nom complet", default="", show_default=False)
+@click.option(
+    "--password",
+    prompt=True,
+    hide_input=True,
+    confirmation_prompt=True,
+    help="Mot de passe du superadmin (min 8 caracteres).",
+)
+def create_superadmin_command(email: str, username: str, full_name: str, password: str) -> None:
+    """Créer un nouvel utilisateur superadmin."""
+    full_name = full_name.strip() or None
+
+    if len(password) < 8:
+        raise click.ClickException("Le mot de passe doit contenir au moins 8 caracteres.")
+
+    _ensure_schema()
+    db = _open_session()
+
     try:
-        print("\n" + "=" * 60)
-        print("🔐 Création d'un compte Superadmin")
-        print("=" * 60 + "\n")
-        
-        # Get user input
-        email = input("📧 Email: ").strip()
-        username = input("👤 Username: ").strip()
-        full_name = input("📝 Nom complet (optionnel): ").strip() or None
-        password = getpass("🔑 Mot de passe (min 8 caractères): ")
-        password_confirm = getpass("🔑 Confirmer le mot de passe: ")
-        
-        # Validation
-        if not email or not username or not password:
-            print("\n❌ Email, username et mot de passe sont obligatoires!")
-            return
-        
-        if password != password_confirm:
-            print("\n❌ Les mots de passe ne correspondent pas!")
-            return
-        
-        if len(password) < 8:
-            print("\n❌ Le mot de passe doit contenir au moins 8 caractères!")
-            return
-        
-        # Check if email already exists
-        existing_user = db.query(User).filter(User.email == email).first()
-        if existing_user:
-            print(f"\n❌ Un utilisateur avec l'email '{email}' existe déjà!")
-            return
-        
-        # Check if username already exists
-        existing_user = db.query(User).filter(User.username == username).first()
-        if existing_user:
-            print(f"\n❌ Un utilisateur avec le username '{username}' existe déjà!")
-            return
-        
-        # Create superadmin user
+        email_exists = db.query(User).filter(User.email == email).first()
+        if email_exists:
+            raise click.ClickException(f"Un utilisateur avec l'email {email} existe deja.")
+
+        username_exists = db.query(User).filter(User.username == username).first()
+        if username_exists:
+            raise click.ClickException(f"Un utilisateur avec le nom {username} existe deja.")
+
         hashed_password = get_password_hash(password)
-        
         superadmin = User(
             email=email,
             username=username,
-            hashed_password=hashed_password,
             full_name=full_name,
+            hashed_password=hashed_password,
             role=UserRole.SUPERADMIN,
-            is_active=True
+            is_active=True,
         )
-        
+
         db.add(superadmin)
         db.commit()
         db.refresh(superadmin)
-        
-        print("\n" + "=" * 60)
-        print("✅ Superadmin créé avec succès!")
-        print("=" * 60)
-        print(f"📧 Email: {superadmin.email}")
-        print(f"👤 Username: {superadmin.username}")
-        print(f"🆔 ID: {superadmin.id}")
-        print(f"👑 Role: {superadmin.role.value}")
-        print(f"📅 Créé le: {superadmin.created_at}")
-        print("=" * 60)
-        print("\n💡 Vous pouvez maintenant vous connecter avec ces identifiants!")
-        print("   Endpoint: POST http://localhost:8000/auth/login\n")
-        
-    except Exception as e:
-        print(f"\n❌ Erreur lors de la création du superadmin: {e}")
+
+        click.secho("Superadmin crée avec succès", fg="green")
+        click.echo(f"ID: {superadmin.id}")
+        click.echo(f"Email: {superadmin.email}")
+        click.echo(f"Username: {superadmin.username}")
+        click.echo(f"Role: {superadmin.role.value}")
+    except SQLAlchemyError as exc:
         db.rollback()
+        raise click.ClickException(f"Echec de la creation: {exc}") from exc
     finally:
         db.close()
 
 
-def list_superadmins():
-    """List all superadmin users"""
-    
-    db: Session = SessionLocal()
-    
+@cli.command("list-superadmins", help="Lister tous les comptes superadmin.")
+def list_superadmins_command() -> None:
+    """Lister les comptes superadmin existants."""
+    _ensure_schema()
+    db = _open_session()
+
     try:
-        superadmins = db.query(User).filter(User.role == UserRole.SUPERADMIN).all()
-        
-        print("\n" + "=" * 60)
-        print(f"👑 Liste des Superadmins ({len(superadmins)})")
-        print("=" * 60 + "\n")
-        
+        superadmins = (
+            db.query(User)
+            .filter(User.role == UserRole.SUPERADMIN)
+            .order_by(User.created_at.desc())
+            .all()
+        )
+
         if not superadmins:
-            print("Aucun superadmin trouvé.\n")
-        else:
-            for admin in superadmins:
-                status = "✅ Actif" if admin.is_active else "❌ Inactif"
-                print(f"🆔 ID: {admin.id}")
-                print(f"   Username: {admin.username}")
-                print(f"   Email: {admin.email}")
-                print(f"   Full Name: {admin.full_name or 'N/A'}")
-                print(f"   Status: {status}")
-                print(f"   Created: {admin.created_at}")
-                print("-" * 60)
-        
-    except Exception as e:
-        print(f"\n❌ Erreur: {e}")
+            click.secho("Aucun superadmin enregistre.", fg="yellow")
+            return
+
+        click.secho(f"{len(superadmins)} superadmin(s) trouve(s)", fg="cyan")
+        for admin in superadmins:
+            status = "Actif" if admin.is_active else "Inactif"
+            click.echo("-" * 40)
+            click.echo(f"ID: {admin.id}")
+            click.echo(f"Username: {admin.username}")
+            click.echo(f"Email: {admin.email}")
+            click.echo(f"Nom complet: {admin.full_name or 'N/A'}")
+            click.echo(f"Statut: {status}")
+            click.echo(f"Date de creation: {admin.created_at}")
+    except SQLAlchemyError as exc:
+        raise click.ClickException(f"Lecture impossible: {exc}") from exc
     finally:
         db.close()
-
-
-def main():
-    """Main menu"""
-    
-    while True:
-        print("\n" + "=" * 60)
-        print("🛠️  Gestion des Superadmins")
-        print("=" * 60)
-        print("\n1. Créer un nouveau superadmin")
-        print("2. Liste des superadmins existants")
-        print("3. Quitter")
-        
-        choice = input("\n👉 Choix: ").strip()
-        
-        if choice == "1":
-            create_superadmin()
-        elif choice == "2":
-            list_superadmins()
-        elif choice == "3":
-            print("\n👋 Au revoir!\n")
-            break
-        else:
-            print("\n❌ Choix invalide. Essayez encore.")
 
 
 if __name__ == "__main__":
-    try:
-        main()
-    except KeyboardInterrupt:
-        print("\n\n👋 Opération annulée. Au revoir!\n")
-    except Exception as e:
-        print(f"\n❌ Erreur inattendue: {e}\n")
+    cli()

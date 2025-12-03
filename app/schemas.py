@@ -4,23 +4,23 @@ from datetime import datetime
 from app.models import UserRole
 
 
-# ============ User Schemas ============
+# ============ Schémas Utilisateur ============
 
 class UserBase(BaseModel):
-    """Base user schema"""
+    """Schéma de base pour l'utilisateur"""
     email: EmailStr
     username: str = Field(..., min_length=3, max_length=50)
     full_name: Optional[str] = None
 
 
 class UserCreate(UserBase):
-    """Schema for user registration"""
+    """Schéma pour l'inscription d'un utilisateur"""
     password: str = Field(..., min_length=8, max_length=100)
     role: Optional[UserRole] = UserRole.CUSTOMER
 
 
 class UserUpdate(BaseModel):
-    """Schema for user update"""
+    """Schéma pour la mise à jour d'un utilisateur"""
     email: Optional[EmailStr] = None
     username: Optional[str] = Field(None, min_length=3, max_length=50)
     full_name: Optional[str] = None
@@ -29,7 +29,7 @@ class UserUpdate(BaseModel):
 
 
 class UserResponse(UserBase):
-    """Schema for user response"""
+    """Schéma pour la réponse utilisateur"""
     id: int
     role: UserRole
     is_active: bool
@@ -39,36 +39,36 @@ class UserResponse(UserBase):
     model_config = ConfigDict(from_attributes=True)
 
 
-# ============ Authentication Schemas ============
+# ============ Schémas d'Authentification ============
 
 class Token(BaseModel):
-    """Schema for JWT token response"""
+    """Schéma pour la réponse du token JWT"""
     access_token: str
     token_type: str = "bearer"
 
 
 class TokenData(BaseModel):
-    """Schema for token payload data"""
+    """Schéma pour les données de la charge utile du token"""
     user_id: Optional[int] = None
     username: Optional[str] = None
     role: Optional[str] = None
 
 
 class LoginRequest(BaseModel):
-    """Schema for login request"""
+    """Schéma pour la requête de connexion"""
     email: Optional[str] = None
     username: Optional[str] = None
     password: str = Field(..., min_length=8)
 
     def model_post_init(self, __data):
-        """Ensure at least email or username is provided"""
+        """S'assure que l'email ou le nom d'utilisateur est fourni"""
         if not self.email and not self.username:
-            raise ValueError("Either email or username must be provided")
+            raise ValueError("L'email ou le nom d'utilisateur doit être fourni")
         super().model_post_init(__data)
 
 
 class LoginResponse(BaseModel):
-    """Schema for login response"""
+    """Schéma pour la réponse de connexion"""
     access_token: str
     token_type: str = "bearer"
     user: UserResponse

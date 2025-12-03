@@ -12,39 +12,39 @@ from app.schemas import (
 from app.auth.utils import verify_password, get_password_hash, create_access_token
 from app.auth.dependencies import get_current_user, require_superadmin
 
-router = APIRouter(prefix="/auth", tags=["Authentication"])
+router = APIRouter(prefix="/auth", tags=["Authentification"])
 
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def register(user_data: UserCreate, db: Session = Depends(get_db)):
     """
-    Register a new user
+    Inscrire un nouvel utilisateur
     
-    - **email**: User's email (must be unique)
-    - **username**: User's username (must be unique)
-    - **password**: User's password (min 8 characters)
-    - **full_name**: User's full name (optional)
-    - **role**: User's role (default: customer)
+    - **email**: Email de l'utilisateur (doit être unique)
+    - **username**: Nom d'utilisateur (doit être unique)
+    - **password**: Mot de passe de l'utilisateur (min 8 caractères)
+    - **full_name**: Nom complet de l'utilisateur (optionnel)
+    - **role**: Rôle de l'utilisateur (défaut : customer)
     
-    Returns the created user information
+    Retourne les informations de l'utilisateur créé
     """
-    # Check if email already exists
+    # Vérifier si l'email existe déjà
     existing_user = db.query(User).filter(User.email == user_data.email).first()
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email already registered"
+            detail="Email déjà enregistré"
         )
     
-    # Check if username already exists
+    # Vérifier si le nom d'utilisateur existe déjà
     existing_user = db.query(User).filter(User.username == user_data.username).first()
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Username already taken"
+            detail="Nom d'utilisateur déjà pris"
         )
     
-    # Create new user
+    # Créer un nouvel utilisateur
     hashed_password = get_password_hash(user_data.password)
     
     new_user = User(
@@ -65,15 +65,15 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
 @router.post("/login", response_model=LoginResponse)
 def login(login_data: LoginRequest, db: Session = Depends(get_db)):
     """
-    Login with email/username and password
+    Connexion avec email/nom d'utilisateur et mot de passe
     
-    - **email**: User's email (optional if username provided)
-    - **username**: User's username (optional if email provided)  
-    - **password**: User's password
+    - **email**: Email de l'utilisateur (optionnel si le nom d'utilisateur est fourni)
+    - **username**: Nom d'utilisateur de l'utilisateur (optionnel si l'email est fourni)  
+    - **password**: Mot de passe de l'utilisateur
     
-    Returns an access token and user information
+    Retourne un token d'accès et les informations de l'utilisateur
     """
-    # Find user by email or username
+    # Trouver l'utilisateur par email ou nom d'utilisateur
     query_conditions = []
     if login_data.email:
         query_conditions.append(User.email == login_data.email)
@@ -88,26 +88,26 @@ def login(login_data: LoginRequest, db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
+            detail="Nom d'utilisateur ou mot de passe incorrect",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    # Verify password
+    # Vérifier le mot de passe
     if not verify_password(login_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
+            detail="Nom d'utilisateur ou mot de passe incorrect",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    # Check if user is active
+    # Vérifier si l'utilisateur est actif
     if not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Inactive user account"
+            detail="Compte utilisateur inactif"
         )
     
-    # Create access token
+    # Créer un token d'accès
     access_token = create_access_token(
         data={
             "user_id": user.id,
@@ -126,9 +126,9 @@ def login(login_data: LoginRequest, db: Session = Depends(get_db)):
 @router.get("/me", response_model=UserResponse)
 def get_current_user_info(current_user: User = Depends(get_current_user)):
     """
-    Get current authenticated user information
+    Obtenir les informations de l'utilisateur actuellement authentifié
     
-    Requires valid JWT token in Authorization header
+    Nécessite un token JWT valide dans l'en-tête Authorization
     """
     return current_user
 
@@ -141,12 +141,12 @@ def list_users(
     db: Session = Depends(get_db)
 ):
     """
-    List all users (Superadmin only)
+    Lister tous les utilisateurs (Superadmin uniquement)
     
-    - **skip**: Number of records to skip (pagination)
-    - **limit**: Maximum number of records to return
+    - **skip**: Nombre d'enregistrements à ignorer (pagination)
+    - **limit**: Nombre maximum d'enregistrements à retourner
     
-    Requires superadmin role
+    Nécessite le rôle superadmin
     """
     users = db.query(User).offset(skip).limit(limit).all()
     return users

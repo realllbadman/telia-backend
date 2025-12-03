@@ -7,7 +7,7 @@ from app.models import User, UserRole
 from app.schemas import TokenData
 from app.auth.utils import decode_access_token
 
-# Security scheme
+# Schéma de sécurité
 security = HTTPBearer()
 
 
@@ -16,25 +16,25 @@ def get_current_user(
     db: Session = Depends(get_db)
 ) -> User:
     """
-    Get the current authenticated user from JWT token
+    Récupérer l'utilisateur actuellement authentifié à partir du token JWT
     
     Args:
-        credentials: HTTP Authorization credentials with Bearer token
-        db: Database session
+        credentials: Identifiants d'autorisation HTTP avec token Bearer
+        db: Session de base de données
         
     Returns:
-        User: Current authenticated user
+        User: Utilisateur actuellement authentifié
         
     Raises:
-        HTTPException: If token is invalid or user not found
+        HTTPException: Si le token est invalide ou l'utilisateur non trouvé
     """
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
+        detail="Impossible de valider les identifiants",
         headers={"WWW-Authenticate": "Bearer"},
     )
     
-    # Decode token
+    # Décoder le token
     token = credentials.credentials
     payload = decode_access_token(token)
     
@@ -47,7 +47,7 @@ def get_current_user(
     if user_id is None or username is None:
         raise credentials_exception
     
-    # Get user from database
+    # Récupérer l'utilisateur depuis la base de données
     user = db.query(User).filter(User.id == user_id).first()
     
     if user is None:
@@ -56,7 +56,7 @@ def get_current_user(
     if not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Inactive user"
+            detail="Utilisateur inactif"
         )
     
     return user
@@ -64,46 +64,46 @@ def get_current_user(
 
 def get_current_active_user(current_user: User = Depends(get_current_user)) -> User:
     """
-    Ensure the current user is active
+    S'assurer que l'utilisateur actuel est actif
     
     Args:
-        current_user: Current authenticated user
+        current_user: Utilisateur actuellement authentifié
         
     Returns:
-        User: Current active user
+        User: Utilisateur actuel actif
         
     Raises:
-        HTTPException: If user is inactive
+        HTTPException: Si l'utilisateur est inactif
     """
     if not current_user.is_active:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Inactive user"
+            detail="Utilisateur inactif"
         )
     return current_user
 
 
 def require_role(allowed_roles: List[UserRole]):
     """
-    Dependency factory to check if user has required role(s)
+    Fabrique de dépendance pour vérifier si l'utilisateur a le(s) rôle(s) requis
     
     Args:
-        allowed_roles: List of allowed roles
+        allowed_roles: Liste des rôles autorisés
         
     Returns:
-        Function: Dependency function that checks user role
+        Function: Fonction de dépendance qui vérifie le rôle de l'utilisateur
     """
     def role_checker(current_user: User = Depends(get_current_active_user)) -> User:
         if current_user.role not in allowed_roles:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Access forbidden. Required roles: {[role.value for role in allowed_roles]}"
+                detail=f"Accès interdit. Rôles requis : {[role.value for role in allowed_roles]}"
             )
         return current_user
     
     return role_checker
 
 
-# Pre-configured role dependencies
+# Dépendances de rôle pré-configurées
 require_superadmin = require_role([UserRole.SUPERADMIN])
 require_customer = require_role([UserRole.CUSTOMER, UserRole.SUPERADMIN])

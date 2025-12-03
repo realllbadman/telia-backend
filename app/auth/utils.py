@@ -4,20 +4,20 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from app.config import settings
 
-# Use PBKDF2 for better compatibility
+# Utiliser PBKDF2 pour une meilleure compatibilité
 pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """
-    Verify a plain password against a hashed password
+    Vérifier un mot de passe en clair par rapport à un mot de passe hashé
     
     Args:
-        plain_password: Plain text password
-        hashed_password: Hashed password from database
+        plain_password: Mot de passe en clair
+        hashed_password: Mot de passe hashé provenant de la base de données
         
     Returns:
-        bool: True if password matches, False otherwise
+        bool: True si le mot de passe correspond, False sinon
     """
     try:
         return pwd_context.verify(plain_password, hashed_password)
@@ -27,30 +27,30 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 def get_password_hash(password: str) -> str:
     """
-    Hash a password using PBKDF2
+    Hasher un mot de passe en utilisant PBKDF2
     
     Args:
-        password: Plain text password
+        password: Mot de passe en clair
         
     Returns:
-        str: Hashed password
+        str: Mot de passe hashé
     """
     try:
         return pwd_context.hash(password)
     except Exception as e:
-        raise ValueError(f"Failed to hash password: {str(e)}")
+        raise ValueError(f"Échec du hachage du mot de passe : {str(e)}")
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     """
-    Create a JWT access token
+    Créer un token d'accès JWT
     
     Args:
-        data: Dictionary containing the data to encode in the token
-        expires_delta: Optional expiration time delta
+        data: Dictionnaire contenant les données à encoder dans le token
+        expires_delta: Delta de temps d'expiration optionnel
         
     Returns:
-        str: Encoded JWT token
+        str: Token JWT encodé
     """
     to_encode = data.copy()
     
@@ -67,13 +67,13 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
 
 def decode_access_token(token: str) -> Optional[dict]:
     """
-    Decode and verify a JWT access token
+    Décoder et vérifier un token d'accès JWT
     
     Args:
-        token: JWT token string
+        token: Chaîne du token JWT
         
     Returns:
-        dict: Decoded token payload or None if invalid
+        dict: Charge utile du token décodé ou None si invalide
     """
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
