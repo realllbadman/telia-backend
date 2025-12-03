@@ -97,7 +97,7 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                     FRONTEND (Nuxt.js)                       │
+│                     FRONTEND (Nuxt.js)                      │
 ├─────────────────────────────────────────────────────────────┤
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
 │  │   Pages     │  │  Composants │  │      Stores         │  │
@@ -106,7 +106,7 @@
 │  │  - Index    │  │  - Input    │  │                     │  │
 │  └─────────────┘  └─────────────┘  └─────────────────────┘  │
 ├─────────────────────────────────────────────────────────────┤
-│                    SERVER (Nitro)                            │
+│                    SERVER (Nitro)                           │
 │  ┌─────────────────────────────────────────────────────┐    │
 │  │  /api/chat.post.ts → Gemini AI Integration          │    │
 │  └─────────────────────────────────────────────────────┘    │
@@ -114,7 +114,7 @@
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                   SERVICES EXTERNES                          │
+│                   SERVICES EXTERNES                         │
 ├─────────────────────────────────────────────────────────────┤
 │  ┌─────────────────┐         ┌─────────────────────────┐    │
 │  │  Google Gemini  │         │   Backend FastAPI       │    │
@@ -461,10 +461,6 @@ npm run postinstall
 Modifier dans `server/api/chat.post.ts` :
 ```typescript
 const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
-```
-
-### Comment intégrer sur un site existant ?
-Le widget est conçu pour fonctionner en iframe ou en intégration directe. Contactez l'équipe technique pour l'intégration sur Glotelho.cm.
 
 ### Les images ne s'envoient pas ?
 - Formats supportés : JPEG, PNG, GIF, WebP
@@ -477,7 +473,7 @@ Le widget est conçu pour fonctionner en iframe ou en intégration directe. Cont
 
 Ce projet est propriétaire et développé pour **Glotelho.cm**.
 
-© 2024 Glotelho - Tous droits réservés.
+© 2025 Glotelho - Tous droits réservés.
 
 ---
 
