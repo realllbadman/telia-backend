@@ -21,25 +21,61 @@ interface ChatRequest {
   }>
 }
 
-// Interface pour un produit
+// Interface pour les informations de prix (nouveau format)
+interface ProductPrice {
+  amount: number
+  regular_amount: number | null
+  special_amount: number | null
+  currency: string
+  formatted_price: string | null
+  formatted_regular_price: string | null
+  discount_percentage: number | null
+  has_discount: boolean
+}
+
+// Interface pour une image produit (nouveau format)
+interface ProductImage {
+  url: string
+  label: string | null
+  type: string | null
+  position: number | null
+  is_main: boolean
+  width: number | null
+  height: number | null
+}
+
+// Interface pour un produit (nouveau format - compatible avec Services/magento)
 interface Product {
   id: number
+  sku: string | null
   name: string
-  type: string
+  description: string | null
+  short_description: string | null
+  product_type: string
   url: string | null
-  store_id: number
-  currency_code: string
-  is_salable: boolean
-  price_info: {
-    final_price: number | null
-    regular_price: number | null
-    formatted_final_price: string | null
-    formatted_regular_price: string | null
-  }
-  images: Array<{
-    url: string
-    label: string | null
+  buy_url: string | null
+  is_available: boolean
+  is_in_stock: boolean
+  price: ProductPrice
+  images: ProductImage[]
+  main_image: ProductImage | null
+  characteristics: Array<{
+    code: string
+    label: string
+    value: any
   }>
+  store_id: number
+}
+
+// Interface pour la réponse paginée
+interface ProductListResponse {
+  items: Product[]
+  total_count: number
+  page: number
+  page_size: number
+  has_next: boolean
+  has_previous: boolean
+  total_pages: number
 }
 
 /**
@@ -100,7 +136,7 @@ function extractSearchParams(message: string): { search?: string; minPrice?: num
       const price = parseInt(priceStr, 10)
       if (price > 0) {
         params.maxPrice = price
-        // Ajouter une marge de 20% pour le prix min
+        // Ajouter une marge de 50% pour le prix min
         params.minPrice = Math.floor(price * 0.5)
       }
       break
@@ -122,6 +158,7 @@ function extractSearchParams(message: string): { search?: string; minPrice?: num
     'machine à laver', 'lave-linge',
     'micro-onde', 'microwave',
     'ventilateur', 'fan',
+    'samsung', 'iphone', 'apple', 'xiaomi', 'huawei',
   ]
 
   for (const keyword of productKeywords) {
@@ -138,7 +175,7 @@ function extractSearchParams(message: string): { search?: string; minPrice?: num
       .toLowerCase()
       .split(/\s+/)
       .filter(w => w.length > 3 && !['pour', 'avec', 'dans', 'quel', 'quelle', 'voudrais', 'cherche', 'besoin'].includes(w))
-    
+
     if (words.length > 0) {
       params.search = words[0]
     }
@@ -148,11 +185,11 @@ function extractSearchParams(message: string): { search?: string; minPrice?: num
 }
 
 /**
- * Récupère les produits depuis l'API backend
+ * Récupère les produits depuis le nouveau service /api/v1/products/
+ * Ce service ne nécessite pas d'authentification
  */
 async function fetchProducts(
   apiBaseUrl: string,
-  token: string,
   params: { search?: string; minPrice?: number; maxPrice?: number }
 ): Promise<Product[]> {
   try {
@@ -170,19 +207,19 @@ async function fetchProducts(
       queryParams.append('max_price', params.maxPrice.toString())
     }
 
-    const response = await fetch(`${apiBaseUrl}/magento/products?${queryParams}`, {
+    // Utilisation du nouveau endpoint /api/v1/products/ (sans authentification requise)
+    const response = await fetch(`${apiBaseUrl}/api/v1/products/?${queryParams}`, {
       headers: {
-        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       }
     })
 
     if (!response.ok) {
-      console.error('Erreur API Magento:', response.status, await response.text())
+      console.error('Erreur API Products:', response.status, await response.text())
       return []
     }
 
-    const data = await response.json()
+    const data: ProductListResponse = await response.json()
     return data.items || []
   } catch (error) {
     console.error('Erreur lors de la récupération des produits:', error)
@@ -255,20 +292,16 @@ export default defineEventHandler(async (event) => {
     // Extraire les paramètres de recherche pour les produits
     const searchParams = extractSearchParams(body.message || '')
 
-    // Variable pour stocker les produits (optionnel - à activer si le backend est disponible)
+    // Récupérer les produits correspondants depuis le nouveau service
+    // Le service /api/v1/products/ ne nécessite pas d'authentification
     let products: Product[] = []
 
-    // Note: Décommenter ces lignes si vous avez un token d'accès admin
-    // et que vous voulez récupérer les produits depuis le backend
-    /*
     if (searchParams.search || searchParams.maxPrice) {
       products = await fetchProducts(
         config.public.apiBaseUrl as string,
-        'VOTRE_TOKEN_ADMIN',
         searchParams
       )
     }
-    */
 
     return {
       content: textResponse,

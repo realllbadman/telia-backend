@@ -14,6 +14,9 @@ from app.auth.dependencies import get_current_user, require_superadmin, require_
 from app.magento import router as magento_router
 from app.models import User, UserRole
 
+# Import du nouveau service Magento (Services/)
+from Services.magento.routes import router as products_router
+
 # Création automatique des tables de la base de données au démarrage
 # Utilise les modèles SQLAlchemy définis dans app.models
 Base.metadata.create_all(bind=engine)
@@ -38,8 +41,10 @@ app.add_middleware(
 # Inclusion des routeurs de modules
 # auth_router: endpoints d'authentification (/auth/*)
 # magento_router: endpoints d'intégration Magento (/magento/*)
+# products_router: nouveau service produits (/api/v1/products/*)
 app.include_router(auth_router)
 app.include_router(magento_router)
+app.include_router(products_router)
 
 
 @app.get("/")

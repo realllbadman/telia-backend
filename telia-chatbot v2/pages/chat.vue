@@ -139,7 +139,10 @@
                     <div class="product-details">
                       <span class="product-name">{{ product.name }}</span>
                       <span class="product-price">
-                        {{ product.price_info.formatted_final_price || formatPrice(product.price_info.final_price) }}
+                        {{ product.price.formatted_price || formatPrice(product.price.amount) }}
+                      </span>
+                      <span v-if="product.price.has_discount" class="product-discount">
+                        -{{ product.price.discount_percentage }}%
                       </span>
                     </div>
                     <a v-if="product.url" :href="product.url" target="_blank" class="product-link">
@@ -889,6 +892,18 @@ definePageMeta({
   font-size: 13px;
   font-weight: 700;
   color: var(--widget-primary);  /* Orange Glotelho pour les prix */
+}
+
+.product-discount {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 6px;
+  font-family: var(--font-heading);
+  font-size: 10px;
+  font-weight: 700;
+  color: white;
+  background: var(--widget-promo);  /* Orange doré pour les promos */
+  border-radius: 4px;
 }
 
 .product-link {

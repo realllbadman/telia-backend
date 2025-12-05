@@ -1,0 +1,486 @@
+{
+  "total_count": 20,
+  "exported_count": 20,
+  "products": [
+    {
+      "id": 66625,
+      "name": "Pack Riz plus Cuisinier",
+      "price": {
+        "amount": 23000.0,
+        "regular_amount": 25000.0,
+        "currency": "XAF",
+        "formatted": "<span class=\"price\">23 000,00 FCFA</span>",
+        "has_discount": true,
+        "discount_percentage": 8.0
+      },
+      "url": "https://staging-site.glotelho.cm/fr/pack-riz-plus-cuisinier.html",
+      "buy_url": "https://staging-site.glotelho.cm/fr/pack-riz-plus-cuisinier.html?add_to_cart=66625",
+      "images": [
+        "https://staging-site.glotelho.cm/media/catalog/product/cache/752dba3bd06fedae0e942aebb418b2a6/p/a/pack_tv_smart_roch_43_pouces.jpg",
+        "https://staging-site.glotelho.cm/media/catalog/product/cache/752dba3bd06fedae0e942aebb418b2a6/p/a/pack_tv_smart_roch_43_pouces.jpg",
+        "https://staging-site.glotelho.cm/media/catalog/product/cache/d6bd1ff52d1c7d77bae2e11973ad1737/p/a/pack_tv_smart_roch_43_pouces.jpg",
+        "https://staging-site.glotelho.cm/media/catalog/product/cache/752dba3bd06fedae0e942aebb418b2a6/p/a/pack_tv_smart_roch_43_pouces.jpg",
+        "https://staging-site.glotelho.cm/media/catalog/product/cache/752dba3bd06fedae0e942aebb418b2a6/p/a/pack_tv_smart_roch_43_pouces.jpg",
+        "https://staging-site.glotelho.cm/media/catalog/product/cache/8627a733b5ccc2ebe69fbbff22ea3b7e/p/a/pack_tv_smart_roch_43_pouces.jpg"
+      ],
+      "characteristics": {},
+      "is_available": true
+    },
+    {
+      "id": 66624,
+      "name": "Climatiseur Split PREMAX - Unité intérieure - 2,5 CV - PMSAC18T1 - 18000 BTU - R410A - Blanc - Garantie 12 Mois",
+      "price": {
+        "amount": 241545.0,
+        "regular_amount": 301931.0,
+        "currency": "XAF",
+        "formatted": "<span class=\"price\">241 545,00 FCFA</span>",
+        "has_discount": true,
+        "discount_percentage": 20.0
+      },
+      "url": "https://staging-site.glotelho.cm/fr/climatiseur-split-premax-unite-interieure-2-5-cv-18000-btu-r410a-blanc.html",
+      "buy_url": "https://staging-site.glotelho.cm/fr/climatiseur-split-premax-unite-interieure-2-5-cv-18000-btu-r410a-blanc.html?add_to_cart=66624",
+      "images": [
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_2.png"
+      ],
+      "characteristics": {},
+      "is_available": true
+    },
+    {
+      "id": 66623,
+      "name": "Climatiseur Split PREMAX - Unité intérieure - 1,5 CV - PMSAC12T11- 12000 BTU - R410A - Blanc - Garantie 12 Mois",
+      "price": {
+        "amount": 172545.0,
+        "regular_amount": 215681.0,
+        "currency": "XAF",
+        "formatted": "<span class=\"price\">172 545,00 FCFA</span>",
+        "has_discount": true,
+        "discount_percentage": 20.0
+      },
+      "url": "https://staging-site.glotelho.cm/fr/climatiseur-split-premax-unite-interieure-1-5-cv-12000-btu-r410a-blanc.html",
+      "buy_url": "https://staging-site.glotelho.cm/fr/climatiseur-split-premax-unite-interieure-1-5-cv-12000-btu-r410a-blanc.html?add_to_cart=66623",
+      "images": [
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_2.png"
+      ],
+      "characteristics": {},
+      "is_available": true
+    },
+    {
+      "id": 66622,
+      "name": "Climatiseur Split PREMAX - Unité intérieure - 1,25 CV - PMSAC09T1- 9000 BTU - R410A - Blanc - Garantie 12 Mois",
+      "price": {
+        "amount": 155295.0,
+        "regular_amount": 194118.0,
+        "currency": "XAF",
+        "formatted": "<span class=\"price\">155 295,00 FCFA</span>",
+        "has_discount": true,
+        "discount_percentage": 20.0
+      },
+      "url": "https://staging-site.glotelho.cm/fr/climatiseur-split-premax-unite-interieure-1-25-cv-9000-btu-r410a-blanc.html",
+      "buy_url": "https://staging-site.glotelho.cm/fr/climatiseur-split-premax-unite-interieure-1-25-cv-9000-btu-r410a-blanc.html?add_to_cart=66622",
+      "images": [
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_2.png"
+      ],
+      "characteristics": {},
+      "is_available": true
+    },
+    {
+      "id": 66621,
+      "name": "Ordinateur portable – Lenovo – IdeaPad Slim 3 – Écran 15.6\" FHD – Intel Core i5-13420H – 16Go RAM – 512Go SSD MVMe – Wi-Fi 6E – Autonomie 10h – FreeDos – Garantie 6 mois",
+      "price": {
+        "amount": 350000.0,
+        "regular_amount": 437500.0,
+        "currency": "XAF",
+        "formatted": "<span class=\"price\">350 000,00 FCFA</span>",
+        "has_discount": true,
+        "discount_percentage": 20.0
+      },
+      "url": "https://staging-site.glotelho.cm/fr/ordinateur-portable-lenovo-ideapad-slim-3-ecran-15-6-fhd-intel-core-i5-13420h-16go-ram-512go-ssd-mvme-wi-fi-6e-autonomie-10h-freedos-garantie-6-mois.html",
+      "buy_url": "https://staging-site.glotelho.cm/fr/ordinateur-portable-lenovo-ideapad-slim-3-ecran-15-6-fhd-intel-core-i5-13420h-16go-ram-512go-ssd-mvme-wi-fi-6e-autonomie-10h-freedos-garantie-6-mois.html?add_to_cart=66621",
+      "images": [
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_2.png"
+      ],
+      "characteristics": {},
+      "is_available": true
+    },
+    {
+      "id": 66620,
+      "name": "Ordinateur portable – Lenovo – V14 G4 IRU –  8Go RAM – 512Go SSD MVMe - Écran 14\" FHD – Intel Core i5-13420H – Wi-Fi 6 – Autonomie 10h – FreeDos – Sac inclus Lenovo - Garantie 6 mois",
+      "price": {
+        "amount": 320000.0,
+        "regular_amount": 400000.0,
+        "currency": "XAF",
+        "formatted": "<span class=\"price\">320 000,00 FCFA</span>",
+        "has_discount": true,
+        "discount_percentage": 20.0
+      },
+      "url": "https://staging-site.glotelho.cm/fr/lenovo-v14-g4-iru-8go-ram-512go-ecran-14-fhd-intel-core-i5-wi-fi-6-autonomie-10h-freedos-lenovo-garantie-6-mois.html",
+      "buy_url": "https://staging-site.glotelho.cm/fr/lenovo-v14-g4-iru-8go-ram-512go-ecran-14-fhd-intel-core-i5-wi-fi-6-autonomie-10h-freedos-lenovo-garantie-6-mois.html?add_to_cart=66620",
+      "images": [
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_2.png"
+      ],
+      "characteristics": {},
+      "is_available": true
+    },
+    {
+      "id": 66619,
+      "name": "Pack Samsung Galaxy A07 5G - 64Go/4Go - 6.7\" - DUAL nano sim - 50MP +2MP/8MP  - 5000mAh + Boitier de recharge original Samsung 25W - Garantie 24 mois",
+      "price": {
+        "amount": 65000.0,
+        "regular_amount": 81250.0,
+        "currency": "XAF",
+        "formatted": "<span class=\"price\">65 000,00 FCFA</span>",
+        "has_discount": true,
+        "discount_percentage": 20.0
+      },
+      "url": "https://staging-site.glotelho.cm/fr/pack-samsung-galaxy-a07-5g-64go-4go-6-7-dual-nano-sim-50mp-2mp-8mp-5000mah-boitier-de-recharge-original-samsung-25w-garantie-24-mois.html",
+      "buy_url": "https://staging-site.glotelho.cm/fr/pack-samsung-galaxy-a07-5g-64go-4go-6-7-dual-nano-sim-50mp-2mp-8mp-5000mah-boitier-de-recharge-original-samsung-25w-garantie-24-mois.html?add_to_cart=66619",
+      "images": [
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_2.png"
+      ],
+      "characteristics": {},
+      "is_available": true
+    },
+    {
+      "id": 66618,
+      "name": "Pack Samsung Galaxy A07 5G - 128Go/4Go - 6.7\" - DUAL nano sim - 50MP +2MP/8MP  - 5000mAh + Boitier de recharge original Samsung 25W - Garantie 24 mois",
+      "price": {
+        "amount": 75000.0,
+        "regular_amount": 93750.0,
+        "currency": "XAF",
+        "formatted": "<span class=\"price\">75 000,00 FCFA</span>",
+        "has_discount": true,
+        "discount_percentage": 20.0
+      },
+      "url": "https://staging-site.glotelho.cm/fr/pack-samsung-galaxy-a07-5g-128go-4go-5000mah-boitier-de-recharge-samsung-25w-garantie-24-mois.html",
+      "buy_url": "https://staging-site.glotelho.cm/fr/pack-samsung-galaxy-a07-5g-128go-4go-5000mah-boitier-de-recharge-samsung-25w-garantie-24-mois.html?add_to_cart=66618",
+      "images": [
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_2.png"
+      ],
+      "characteristics": {},
+      "is_available": true
+    },
+    {
+      "id": 66617,
+      "name": "Pack Samsung Galaxy A07 5G - 128Go/6Go - 6.7\" - DUAL nano sim - 50MP +2MP/8MP  - 5000mAh + Boitier de recharge original Samsung 25W - Garantie 24 mois",
+      "price": {
+        "amount": 83000.0,
+        "regular_amount": 103750.0,
+        "currency": "XAF",
+        "formatted": "<span class=\"price\">83 000,00 FCFA</span>",
+        "has_discount": true,
+        "discount_percentage": 20.0
+      },
+      "url": "https://staging-site.glotelho.cm/fr/pack-samsung-galaxy-a07-5g-128go-6go-boitier-de-recharge-samsung-25w-garantie-24-mois.html",
+      "buy_url": "https://staging-site.glotelho.cm/fr/pack-samsung-galaxy-a07-5g-128go-6go-boitier-de-recharge-samsung-25w-garantie-24-mois.html?add_to_cart=66617",
+      "images": [
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_2.png"
+      ],
+      "characteristics": {},
+      "is_available": true
+    },
+    {
+      "id": 66612,
+      "name": "Réfrigérateur LG à portes françaises - 671 Litres - MoodUP® - Objet collection - GR-A24FDMMB - 3 étoiles - Garantie 12 mois",
+      "price": {
+        "amount": 2875045.0,
+        "regular_amount": 3593806.0,
+        "currency": "XAF",
+        "formatted": "<span class=\"price\">2 875 045,00 FCFA</span>",
+        "has_discount": true,
+        "discount_percentage": 20.0
+      },
+      "url": "https://staging-site.glotelho.cm/fr/refrigerateur-lg-a-portes-francaises-671-litres-moodupr-objet-collection-gr-a24fdmmb-3-etoiles.html",
+      "buy_url": "https://staging-site.glotelho.cm/fr/refrigerateur-lg-a-portes-francaises-671-litres-moodupr-objet-collection-gr-a24fdmmb-3-etoiles.html?add_to_cart=66612",
+      "images": [
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_2.png"
+      ],
+      "characteristics": {},
+      "is_available": true
+    },
+    {
+      "id": 66606,
+      "name": "Carton de 6 Vins Blanc Moelleux - Hautes Terres d'Exception Bordeaux 2022 - 75CL",
+      "price": {
+        "amount": 28000.0,
+        "regular_amount": 35000.0,
+        "currency": "XAF",
+        "formatted": "<span class=\"price\">28 000,00 FCFA</span>",
+        "has_discount": true,
+        "discount_percentage": 20.0
+      },
+      "url": "https://staging-site.glotelho.cm/fr/carton-de-6-vins-blanc-moelleux-hautes-terres-d-exception-bordeaux-2022-75cl.html",
+      "buy_url": "https://staging-site.glotelho.cm/fr/carton-de-6-vins-blanc-moelleux-hautes-terres-d-exception-bordeaux-2022-75cl.html?add_to_cart=66606",
+      "images": [
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_2.png"
+      ],
+      "characteristics": {},
+      "is_available": true
+    },
+    {
+      "id": 66604,
+      "name": "Vin Blanc Moelleux - Hautes Terres d'Exception Bordeaux 2022 - 75CL",
+      "price": {
+        "amount": 4800.0,
+        "regular_amount": 6000.0,
+        "currency": "XAF",
+        "formatted": "<span class=\"price\">4 800,00 FCFA</span>",
+        "has_discount": true,
+        "discount_percentage": 20.0
+      },
+      "url": "https://staging-site.glotelho.cm/fr/vin-blanc-moelleux-hautes-terres-d-exception-bordeaux-2022-75cl.html",
+      "buy_url": "https://staging-site.glotelho.cm/fr/vin-blanc-moelleux-hautes-terres-d-exception-bordeaux-2022-75cl.html?add_to_cart=66604",
+      "images": [
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_2.png"
+      ],
+      "characteristics": {},
+      "is_available": true
+    },
+    {
+      "id": 66603,
+      "name": "Carton de 6 Bouteilles de Vin Rouge Calvet Merlot - 75CL",
+      "price": {
+        "amount": 27500.0,
+        "regular_amount": 34375.0,
+        "currency": "XAF",
+        "formatted": "<span class=\"price\">27 500,00 FCFA</span>",
+        "has_discount": true,
+        "discount_percentage": 20.0
+      },
+      "url": "https://staging-site.glotelho.cm/fr/carton-de-6-vins-rouge-calvet-merlot-75cl.html",
+      "buy_url": "https://staging-site.glotelho.cm/fr/carton-de-6-vins-rouge-calvet-merlot-75cl.html?add_to_cart=66603",
+      "images": [
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_2.png"
+      ],
+      "characteristics": {},
+      "is_available": true
+    },
+    {
+      "id": 66602,
+      "name": "Ventilateur Solaire sur Pied Rechargeable - 16 pouces - ALLTOP DQ1804B18-01 - 6 Mois",
+      "price": {
+        "amount": 30000.0,
+        "regular_amount": 40000.0,
+        "currency": "XAF",
+        "formatted": "<span class=\"price\">30 000,00 FCFA</span>",
+        "has_discount": true,
+        "discount_percentage": 25.0
+      },
+      "url": "https://staging-site.glotelho.cm/fr/ventilateur-solaire-sur-pied-rechargeable-16-pouces-alltop-dq1804b18-01-6-mois.html",
+      "buy_url": "https://staging-site.glotelho.cm/fr/ventilateur-solaire-sur-pied-rechargeable-16-pouces-alltop-dq1804b18-01-6-mois.html?add_to_cart=66602",
+      "images": [
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_2.png"
+      ],
+      "characteristics": {},
+      "is_available": true
+    },
+    {
+      "id": 66601,
+      "name": "HONOR – Magic V3 – AMOLED 7.92\" + OLED 6.43\" – Snapdragon 8 Gen 3 – 12Go RAM – 512Go ROM – 50+50+40MP –  5150mAh - 66W – Garantie 12 mois",
+      "price": {
+        "amount": 860000.0,
+        "regular_amount": 1075000.0,
+        "currency": "XAF",
+        "formatted": "<span class=\"price\">860 000,00 FCFA</span>",
+        "has_discount": true,
+        "discount_percentage": 20.0
+      },
+      "url": "https://staging-site.glotelho.cm/fr/honor-magic-v3-amoled-7-92-oled-6-43-snapdragon-8-gen-3-12go-ram-512go-rom-50-50-40mp-5150mah-66w-garantie-12-mois.html",
+      "buy_url": "https://staging-site.glotelho.cm/fr/honor-magic-v3-amoled-7-92-oled-6-43-snapdragon-8-gen-3-12go-ram-512go-rom-50-50-40mp-5150mah-66w-garantie-12-mois.html?add_to_cart=66601",
+      "images": [
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_2.png"
+      ],
+      "characteristics": {},
+      "is_available": true
+    },
+    {
+      "id": 66600,
+      "name": "Vin Rouge Calvet Merlot - 75CL",
+      "price": {
+        "amount": 4800.0,
+        "regular_amount": 6000.0,
+        "currency": "XAF",
+        "formatted": "<span class=\"price\">4 800,00 FCFA</span>",
+        "has_discount": true,
+        "discount_percentage": 20.0
+      },
+      "url": "https://staging-site.glotelho.cm/fr/vin-rouge-calvet-merlot-75cl.html",
+      "buy_url": "https://staging-site.glotelho.cm/fr/vin-rouge-calvet-merlot-75cl.html?add_to_cart=66600",
+      "images": [
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_2.png"
+      ],
+      "characteristics": {},
+      "is_available": true
+    },
+    {
+      "id": 66599,
+      "name": "Ventilateur Solaire Mural Rechargeable - 16 pouces - ALLTOP DQ1802A15-03 - 6 Mois",
+      "price": {
+        "amount": 30000.0,
+        "regular_amount": 40000.0,
+        "currency": "XAF",
+        "formatted": "<span class=\"price\">30 000,00 FCFA</span>",
+        "has_discount": true,
+        "discount_percentage": 25.0
+      },
+      "url": "https://staging-site.glotelho.cm/fr/ventilateur-solaire-mural-rechargeable-16-pouces-alltop-dq1802a15-03-6-mois.html",
+      "buy_url": "https://staging-site.glotelho.cm/fr/ventilateur-solaire-mural-rechargeable-16-pouces-alltop-dq1802a15-03-6-mois.html?add_to_cart=66599",
+      "images": [
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_2.png"
+      ],
+      "characteristics": {},
+      "is_available": true
+    },
+    {
+      "id": 66598,
+      "name": "Honor - 400 Lite - 108MP + 5Mp / 16 MP - Double Nano Sim - AMOLED 6.7\" - 8Go RAM - 256Go - Android 15 - IP65 - Garantie 12 mois",
+      "price": {
+        "amount": 175000.0,
+        "regular_amount": 218750.0,
+        "currency": "XAF",
+        "formatted": "<span class=\"price\">175 000,00 FCFA</span>",
+        "has_discount": true,
+        "discount_percentage": 20.0
+      },
+      "url": "https://staging-site.glotelho.cm/fr/honor-400-lite-amoled-6-7-108mp-8go-ram-256go-android-15-ip65-garantie-12-mois.html",
+      "buy_url": "https://staging-site.glotelho.cm/fr/honor-400-lite-amoled-6-7-108mp-8go-ram-256go-android-15-ip65-garantie-12-mois.html?add_to_cart=66598",
+      "images": [
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_2.png"
+      ],
+      "characteristics": {},
+      "is_available": true
+    },
+    {
+      "id": 66597,
+      "name": "Projecteur LED solaire 300W - ALLTOP 0427E300-01 - 6 Mois",
+      "price": {
+        "amount": 35000.0,
+        "regular_amount": 42500.0,
+        "currency": "XAF",
+        "formatted": "<span class=\"price\">35 000,00 FCFA</span>",
+        "has_discount": true,
+        "discount_percentage": 17.65
+      },
+      "url": "https://staging-site.glotelho.cm/fr/projecteur-led-solaire-300w-alltop-0427e300-01-6-mois.html",
+      "buy_url": "https://staging-site.glotelho.cm/fr/projecteur-led-solaire-300w-alltop-0427e300-01-6-mois.html?add_to_cart=66597",
+      "images": [
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_2.png"
+      ],
+      "characteristics": {},
+      "is_available": true
+    },
+    {
+      "id": 66596,
+      "name": "Réfrigérateur vitré Binatone - 298 Litres - BSC-300 - Garantie 12 mois",
+      "price": {
+        "amount": 293295.0,
+        "regular_amount": 366619.0,
+        "currency": "XAF",
+        "formatted": "<span class=\"price\">293 295,00 FCFA</span>",
+        "has_discount": true,
+        "discount_percentage": 20.0
+      },
+      "url": "https://staging-site.glotelho.cm/fr/refrigerateur-vitre-binatone-298-litres-bsc-300.html",
+      "buy_url": "https://staging-site.glotelho.cm/fr/refrigerateur-vitre-binatone-298-litres-bsc-300.html?add_to_cart=66596",
+      "images": [
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_1.png",
+        "https://staging-site.glotelho.cm/media/catalog/product/placeholder/stores/1/G_de_glotelho_2.png"
+      ],
+      "characteristics": {},
+      "is_available": true
+    }
+  ]
+}

@@ -15,25 +15,50 @@ export interface MessageImage {
   type: string       // Type MIME
 }
 
-// Interface pour un produit Magento
+// Interface pour les informations de prix (nouveau format - compatible avec Services/magento)
+export interface ProductPrice {
+  amount: number
+  regular_amount: number | null
+  special_amount: number | null
+  currency: string
+  formatted_price: string | null
+  formatted_regular_price: string | null
+  discount_percentage: number | null
+  has_discount: boolean
+}
+
+// Interface pour une image produit (nouveau format)
+export interface ProductImage {
+  url: string
+  label: string | null
+  type: string | null
+  position: number | null
+  is_main: boolean
+  width: number | null
+  height: number | null
+}
+
+// Interface pour un produit Magento (nouveau format - compatible avec Services/magento)
 export interface Product {
   id: number
+  sku: string | null
   name: string
-  type: string
+  description: string | null
+  short_description: string | null
+  product_type: string
   url: string | null
-  store_id: number
-  currency_code: string
-  is_salable: boolean
-  price_info: {
-    final_price: number | null
-    regular_price: number | null
-    formatted_final_price: string | null
-    formatted_regular_price: string | null
-  }
-  images: Array<{
-    url: string
-    label: string | null
+  buy_url: string | null
+  is_available: boolean
+  is_in_stock: boolean
+  price: ProductPrice
+  images: ProductImage[]
+  main_image: ProductImage | null
+  characteristics: Array<{
+    code: string
+    label: string
+    value: any
   }>
+  store_id: number
 }
 
 // Interface pour un message du chat
@@ -79,14 +104,14 @@ export const useChatStore = defineStore('chat', {
   getters: {
     // Récupère le dernier message
     lastMessage: (state): ChatMessage | null => {
-      return state.messages.length > 0 
-        ? state.messages[state.messages.length - 1] 
+      return state.messages.length > 0
+        ? state.messages[state.messages.length - 1]
         : null
     },
-    
+
     // Compte le nombre de messages
     messageCount: (state): number => state.messages.length,
-    
+
     // Vérifie si le chat est vide
     isEmpty: (state): boolean => state.messages.length === 0
   },
@@ -102,7 +127,7 @@ export const useChatStore = defineStore('chat', {
       this.sessionId = `session_${Date.now()}`
       this.messages = []
       this.error = null
-      
+
       // Message de bienvenue de Telia
       this.addMessage({
         role: 'assistant',
