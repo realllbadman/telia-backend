@@ -57,9 +57,9 @@
   --color-bot-text: #333333;
   
   /* Typographie Glotelho */
-  --font-heading: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-body: 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-heading: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem;
@@ -180,7 +180,7 @@ body {
   background: var(--color-primary);  /* Orange Glotelho - Flat design */
   color: var(--color-white);
   font-family: var(--font-heading);
-  font-weight: 600;
+  font-weight: 900;
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -270,6 +270,10 @@ body {
 
 .font-bold {
   font-weight: 700;
+}
+
+.font-black {
+  font-weight: 900;
 }
 
 .mt-1 { margin-top: var(--spacing-sm); }

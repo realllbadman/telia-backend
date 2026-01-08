@@ -78,40 +78,29 @@ interface ProductListResponse {
   total_pages: number
 }
 
-/**
- * Prompt système pour Telia Assistant
- */
-const SYSTEM_PROMPT = `Tu es Telia Assistant, l'assistant shopping intelligent de Glotelho, une plateforme e-commerce camerounaise.
 
-Ton rôle est d'aider les clients à :
-1. Trouver des produits adaptés à leurs besoins et budget
-2. Analyser des images de produits pour suggérer des alternatives
-3. Comparer les prix et caractéristiques
-4. Passer des commandes
-5. Suivre leurs commandes
+const SYSTEM_PROMPT = `Tu es Telia Assistant, l'assistant shopping virtuel expert de Glotelho, le leader du e-commerce au Cameroun.
+Ta mission est d'offrir une expérience de vente exceptionnelle, personnalisée et efficace.
 
-Règles importantes :
-- Réponds TOUJOURS en français
-- Sois amical, professionnel et concis
-- Utilise des emojis modérément pour rendre les réponses plus engageantes
-- Quand un utilisateur demande des produits, analyse sa requête pour extraire :
-  * La catégorie de produit (téléphone, ordinateur, électroménager, etc.)
-  * Le budget maximum (si mentionné)
-  * Les caractéristiques souhaitées
-  * Le profil utilisateur (photographe, gamer, professionnel, etc.)
-- Propose toujours 5 produits maximum
-- Indique clairement les prix en FCFA (XAF)
-- Pour les commandes, guide l'utilisateur vers le processus d'achat sur glotelho.cm
+TA PERSONNALITÉ :
+- Professionnel, chaleureux, et expert.
+- Tu connais parfaitement le catalogue Glotelho (High-Tech, Électroménager, Maison, Mode, Supermarché).
+- Tu t'exprimes dans un français impeccable, naturel et engageant.
 
-Si un utilisateur envoie une image :
-- Analyse l'image pour identifier le type de produit
-- Propose des produits similaires disponibles sur Glotelho
-- Mentionne les caractéristiques que tu as identifiées
+TES OBJECTIFS CLÉS :
+1. COMPRENDRE : Analyse le besoin, le budget (en FCFA / XAF) et l'usage du client.
+2. CONSEILLER : Propose les produits les plus pertinents, pas juste les moins chers. Mets en avant les avantages clés.
+3. CONVAINCRE : Utilise des arguments persuasifs mais honnêtes. Explique pourquoi ce produit est le bon choix.
+4. GUIDER : Aide à finaliser l'achat sur le site.
 
-Format de réponse pour les recommandations de produits :
-Utilise un format clair avec le nom, prix et brève description.
+RÈGLES D'INTERACTION :
+- Si l'utilisateur salue, réponds brièvement et demande comment tu peux l'aider aujourd'hui.
+- Si le budget est mentionné, respecte-le ou propose une alternative légèrement supérieure en justifiant la valeur ajoutée.
+- Utilise des émojis avec parcimonie pour dynamiser la conversation sans être enfantin 📱💻✨.
+- Structure tes réponses : Introduction courte -> Suggestions -> Question ouverte pour continuer.
+- Affiche toujours les prix clairement en FCFA.
 
-Tu as accès à la base de produits de Glotelho via l'API backend.`
+IMPORTANT : Tu es un assistant de VENTE. Ton but est d'aider le client à trouver son bonheur chez Glotelho. N'invente pas de produits. Base-toi sur les informations que tu reçois ou demande des précisions.`
 
 /**
  * Extrait les informations de recherche depuis la requête utilisateur
@@ -207,8 +196,10 @@ async function fetchProducts(
       queryParams.append('max_price', params.maxPrice.toString())
     }
 
+    const url = `${apiBaseUrl}/api/v1/products/?${queryParams}`
+
     // Utilisation du nouveau endpoint /api/v1/products/ (sans authentification requise)
-    const response = await fetch(`${apiBaseUrl}/api/v1/products/?${queryParams}`, {
+    const response = await fetch(url, {
       headers: {
         'Content-Type': 'application/json'
       }
@@ -241,11 +232,7 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    // Initialiser le client Gemini
-    const genAI = new GoogleGenerativeAI(config.geminiApiKey)
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
-
-    // Construire le contenu de la requête
+    // 1. Construire le contenu de la requête (parts)
     const parts: any[] = [{ text: SYSTEM_PROMPT + '\n\n' }]
 
     // Ajouter l'historique de conversation (limité)
@@ -284,10 +271,67 @@ export default defineEventHandler(async (event) => {
     // Ajouter le message utilisateur
     parts.push({ text: `\nNouvelle requête du client: ${body.message || 'Analyse cette image et propose-moi des produits similaires.'}` })
 
-    // Générer la réponse avec Gemini
-    const result = await model.generateContent(parts)
-    const response = result.response
-    let textResponse = response.text()
+
+    // --- APPEL API DIRECT (Bypass SDK pour support modèle Preview & Tools) ---
+
+    // Préparation des contenus pour l'API REST
+    const apiContents = [
+      {
+        role: 'user',
+        parts: parts
+      }
+    ]
+
+    // Utilisation de gemini-flash-latest comme demandé
+    const modelName = 'gemini-flash-latest'
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${config.geminiApiKey}`
+
+    const apiResponse = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        contents: apiContents,
+        // Outils : Google Search
+        tools: [
+          { googleSearch: {} }
+        ],
+        // Configuration de la génération
+        generationConfig: {
+          temperature: 0.7,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 8192,
+          // Configuration expérimentale Thinking (si supporté par le modèle)
+          thinkingConfig: {
+            includeThoughts: false // On cache les "pensées" internes pour l'utilisateur final
+          }
+        }
+      })
+    })
+
+    if (!apiResponse.ok) {
+      const errorText = await apiResponse.text()
+      console.error('Erreur API Gemini Directe:', apiResponse.status, errorText)
+      throw new Error(`Erreur API Google (${apiResponse.status}): ${errorText}`)
+    }
+
+    const result = await apiResponse.json()
+
+    // Extraction du texte de la réponse (format REST)
+    let textResponse = ''
+    if (result.candidates && result.candidates.length > 0 && result.candidates[0].content && result.candidates[0].content.parts) {
+      textResponse = result.candidates[0].content.parts.map((p: any) => p.text).join('')
+
+      // Si des résultats de grounding Google Search sont utilisés, on peut l'indiquer si nécessaire
+      if (result.candidates[0].groundingMetadata) {
+        // Log pour info server
+        console.log('Grounding Metadata:', result.candidates[0].groundingMetadata)
+      }
+    } else {
+      textResponse = "Désolé, je n'ai pas pu générer de réponse."
+    }
 
     // Extraire les paramètres de recherche pour les produits
     const searchParams = extractSearchParams(body.message || '')
@@ -309,11 +353,18 @@ export default defineEventHandler(async (event) => {
     }
 
   } catch (error: any) {
-    console.error('Erreur Gemini:', error)
+    console.error('============ ERREUR GEMINI DETAIL ===========')
+    console.error('Message:', error.message)
+    console.error('Cause:', error.cause)
+    console.error('Stack:', error.stack)
+    if (error.response) {
+      console.error('API Response:', JSON.stringify(error.response, null, 2))
+    }
+    console.error('=============================================')
 
     throw createError({
       statusCode: 500,
-      message: error.message || 'Erreur lors du traitement de votre demande'
+      message: `Erreur interne: ${error.message || 'Erreur inconnue'}`
     })
   }
 })

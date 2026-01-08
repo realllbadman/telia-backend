@@ -17,8 +17,8 @@ export default defineNuxtConfig({
   // Configuration des variables d'environnement runtime
   runtimeConfig: {
     // Clé API Gemini (côté serveur uniquement pour la sécurité)
-    geminiApiKey: process.env.GEMINI_API_KEY || 'AIzaSyBg2Nou49bo8FDMkpXfIAmC-6K7AHwzZbc',
-    
+    geminiApiKey: process.env.GEMINI_API_KEY || 'AIzaSyB5BcEDjj96QveDQYJqauC-nWgVz0XECmQ',
+
     // Variables publiques accessibles côté client
     public: {
       // URL de base de l'API backend
@@ -43,7 +43,7 @@ export default defineNuxtConfig({
       link: [
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
-        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Poppins:wght@500;600;700&display=swap' },
+        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap' },
         { rel: 'icon', type: 'image/svg+xml', href: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="%23FF6600"/><rect x="25" y="35" width="50" height="35" rx="5" fill="white"/><circle cx="38" cy="50" r="6" fill="%23FF6600"/><circle cx="62" cy="50" r="6" fill="%23FF6600"/></svg>' }
       ]
     }

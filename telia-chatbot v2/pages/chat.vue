@@ -26,12 +26,7 @@
       <header class="widget-header" @click="toggleMinimize">
         <div class="header-left">
         <div class="bot-avatar">
-          <svg viewBox="0 0 40 40" fill="none">
-            <circle cx="20" cy="20" r="18" fill="#FF6600"/>
-            <rect x="11" y="14" width="18" height="14" rx="2" fill="white"/>
-            <circle cx="15" cy="20" r="2" fill="#FF6600"/>
-            <circle cx="25" cy="20" r="2" fill="#FF6600"/>
-          </svg>
+          <img src="/logo.jpg" alt="Telia Assistant" class="avatar-img" />
         </div>
           <div class="header-info">
             <span class="bot-name">Telia Assistant</span>
@@ -94,12 +89,7 @@
             >
               <!-- Avatar bot uniquement -->
               <div v-if="message.role === 'assistant'" class="msg-avatar">
-                <svg viewBox="0 0 28 28" fill="none">
-                  <circle cx="14" cy="14" r="13" fill="#FF6600"/>
-                  <rect x="7" y="9" width="14" height="10" rx="1.5" fill="white"/>
-                  <circle cx="10" cy="13" r="1.5" fill="#FF6600"/>
-                  <circle cx="18" cy="13" r="1.5" fill="#FF6600"/>
-                </svg>
+                <img src="/logo.jpg" alt="Telia" class="avatar-img" />
               </div>
 
               <!-- Contenu du message -->
@@ -123,31 +113,71 @@
                   />
                 </div>
 
-                <!-- Produits recommandés -->
-                <div v-if="message.products && message.products.length > 0" class="products-list">
-                  <div
-                    v-for="product in message.products"
-                    :key="product.id"
-                    class="product-item"
-                  >
-                    <img
-                      v-if="product.images && product.images.length > 0"
-                      :src="product.images[0].url"
-                      :alt="product.name"
-                      class="product-thumb"
-                    />
-                    <div class="product-details">
-                      <span class="product-name">{{ product.name }}</span>
-                      <span class="product-price">
-                        {{ product.price.formatted_price || formatPrice(product.price.amount) }}
+                <!-- Produits recommandés - Grille horizontale style Glotelho -->
+                <div v-if="message.products && message.products.length > 0" class="products-grid-wrapper">
+                  <div class="products-grid">
+                    <div
+                      v-for="product in message.products"
+                      :key="product.id"
+                      class="product-card"
+                    >
+                      <!-- Badge promo -->
+                      <span v-if="product.price.has_discount" class="promo-badge">
+                        -{{ Math.round(product.price.discount_percentage || 0) }}%
                       </span>
-                      <span v-if="product.price.has_discount" class="product-discount">
-                        -{{ product.price.discount_percentage }}%
-                      </span>
+                      
+                      <!-- Image du produit -->
+                      <div class="card-image">
+                        <img
+                          v-if="product.images && product.images.length > 0"
+                          :src="product.images[0].url"
+                          :alt="product.name"
+                          loading="lazy"
+                          referrerpolicy="no-referrer"
+                        />
+                        <div v-else class="no-image">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                            <path d="M21 15l-5-5L5 21"/>
+                          </svg>
+                        </div>
+                      </div>
+                      
+                      <!-- Infos du produit -->
+                      <div class="card-content">
+                        <!-- Nom du produit -->
+                        <h4 class="card-title">{{ product.name }}</h4>
+                        
+                        <!-- Prix -->
+                        <div class="card-pricing">
+                          <span class="current-price">
+                            {{ formatPrice(product.price.amount) }}
+                          </span>
+                          <span v-if="product.price.has_discount && product.price.regular_amount" class="old-price">
+                            {{ formatPrice(product.price.regular_amount) }}
+                          </span>
+                        </div>
+                        
+                        <!-- Boutons d'action -->
+                        <div class="card-actions">
+                          <button 
+                            class="btn-details"
+                            @click="openProductDetails(product)"
+                          >
+                            👁️ Voir Plus
+                          </button>
+                          <a 
+                            v-if="product.url"
+                            :href="product.buy_url || product.url" 
+                            target="_blank" 
+                            class="btn-buy"
+                          >
+                            🛒 Acheter
+                          </a>
+                        </div>
+                      </div>
                     </div>
-                    <a v-if="product.url" :href="product.url" target="_blank" class="product-link">
-                      Voir →
-                    </a>
                   </div>
                 </div>
               </div>
@@ -207,6 +237,109 @@
         </footer>
       </template>
     </div>
+
+    <!-- Modal de détails produit -->
+    <Teleport to="body">
+      <div v-if="showProductModal && selectedProduct" class="product-modal-overlay" @click.self="closeProductDetails">
+        <div class="product-modal">
+          <!-- Header du modal -->
+          <header class="modal-header">
+            <h3>Détails du produit</h3>
+            <button class="modal-close" @click="closeProductDetails">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 6l12 12M18 6L6 18" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </header>
+          
+          <!-- Corps du modal -->
+          <div class="modal-body">
+            <!-- Image principale -->
+            <div class="modal-image">
+              <img 
+                v-if="selectedProduct.images && selectedProduct.images.length > 0"
+                :src="selectedProduct.images[0].url"
+                :alt="selectedProduct.name"
+                referrerpolicy="no-referrer"
+              />
+              <div v-else class="no-image-large">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/>
+                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                  <path d="M21 15l-5-5L5 21"/>
+                </svg>
+              </div>
+              <!-- Badge promo dans le modal -->
+              <span v-if="selectedProduct.price.has_discount" class="modal-promo-badge">
+                -{{ Math.round(selectedProduct.price.discount_percentage || 0) }}%
+              </span>
+            </div>
+            
+            <!-- Informations -->
+            <div class="modal-info">
+              <h2 class="modal-title">{{ selectedProduct.name }}</h2>
+              
+              <!-- Prix -->
+              <div class="modal-pricing">
+                <span class="modal-current-price">
+                  {{ formatPrice(selectedProduct.price.amount) }}
+                </span>
+                <span v-if="selectedProduct.price.has_discount && selectedProduct.price.regular_amount" class="modal-old-price">
+                  {{ formatPrice(selectedProduct.price.regular_amount) }}
+                </span>
+              </div>
+              
+              <!-- Disponibilité -->
+              <div class="modal-availability">
+                <span v-if="selectedProduct.is_available" class="available">
+                  ✅ En stock
+                </span>
+                <span v-else class="unavailable">
+                  ❌ Rupture de stock
+                </span>
+              </div>
+              
+              <!-- Description -->
+              <div v-if="selectedProduct.short_description || selectedProduct.description" class="modal-description">
+                <h4>Description</h4>
+                <p v-html="selectedProduct.short_description || selectedProduct.description"></p>
+              </div>
+              
+              <!-- Caractéristiques -->
+              <div v-if="selectedProduct.characteristics && selectedProduct.characteristics.length > 0" class="modal-characteristics">
+                <h4>Caractéristiques</h4>
+                <ul>
+                  <li v-for="char in selectedProduct.characteristics" :key="char.code">
+                    <strong>{{ char.label }}:</strong> {{ char.value }}
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Footer du modal avec bouton Acheter -->
+          <footer class="modal-footer">
+            <a 
+              v-if="selectedProduct.url"
+              :href="selectedProduct.buy_url || selectedProduct.url" 
+              target="_blank" 
+              class="modal-btn-buy"
+              @click="closeProductDetails"
+            >
+              🛒 Acheter maintenant
+            </a>
+            <a 
+              v-if="selectedProduct.url"
+              :href="selectedProduct.url" 
+              target="_blank" 
+              class="modal-btn-view"
+            >
+              🔗 Voir sur le site
+            </a>
+          </footer>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -216,10 +349,12 @@
  */
 import { useAuthStore } from '~/stores/auth'
 import { useChatStore, type MessageImage, type Product } from '~/stores/chat'
+import { marked } from 'marked'
 
 // Stores
 const authStore = useAuthStore()
 const chatStore = useChatStore()
+const route = useRoute()
 
 // Références
 const messagesContainer = ref<HTMLElement | null>(null)
@@ -353,25 +488,70 @@ function clearChat() {
 }
 
 /**
- * Formate le message avec markdown basique
+ * Formate le message avec markdown (utilise marked)
  */
 function formatMessage(content: string): string {
-  return content
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    .replace(/\n/g, '<br>')
+  if (!content) return ''
+  try {
+    return marked.parse(content, { breaks: true, async: false }) as string
+  } catch (e) {
+    console.error('Erreur parsing markdown:', e)
+    return content
+  }
+}
+
+
+
+/**
+ * Formate un prix en XAF et nettoie le HTML éventuel
+ */
+function formatPrice(price: number | string | null): string {
+  // Si c'est nul ou indéfini
+  if (price === null || price === undefined) return 'Prix N/D'
+  
+  // Si c'est une chaîne qui contient du HTML ou qu'on veut nettoyer
+  if (typeof price === 'string') {
+    // Enlever les balises HTML si présentes (compatible SSR avec regex)
+    if (price.includes('<')) {
+      price = price.replace(/<[^>]*>/g, '')
+    }
+    
+    // Essayer de convertir en nombre
+    const num = parseFloat(price.replace(/[^0-9.-]+/g, ''))
+    if (!isNaN(num)) price = num
+  }
+
+  // Si c'est un nombre valide
+  if (typeof price === 'number') {
+    return new Intl.NumberFormat('fr-CM', {
+      style: 'currency',
+      currency: 'XAF',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0 // Pas de centimes pour les FCFA généralement
+    }).format(price)
+  }
+
+  return String(price)
+}
+
+// État pour le modal de détails produit
+const selectedProduct = ref<any>(null)
+const showProductModal = ref(false)
+
+/**
+ * Ouvre le modal avec les détails du produit
+ */
+function openProductDetails(product: any) {
+  selectedProduct.value = product
+  showProductModal.value = true
 }
 
 /**
- * Formate un prix en XAF
+ * Ferme le modal de détails
  */
-function formatPrice(price: number | null): string {
-  if (price === null) return 'Prix N/D'
-  return new Intl.NumberFormat('fr-CM', {
-    style: 'currency',
-    currency: 'XAF',
-    minimumFractionDigits: 0
-  }).format(price)
+function closeProductDetails() {
+  selectedProduct.value = null
+  showProductModal.value = false
 }
 
 // Ouvrir automatiquement si authentifié
@@ -625,13 +805,25 @@ definePageMeta({
 }
 
 .bot-avatar {
-  width: 36px;
-  height: 36px;
+  width: 44px; /* Un peu plus grand pour l'entête */
+  height: 44px;
+  border-radius: 50%;
+  margin-right: 12px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-.bot-avatar svg {
+.bot-avatar img {
   width: 100%;
   height: 100%;
+  object-fit: cover;
+  transform: scale(1.15); /* Zoom pour compenser les marges de l'image */
 }
 
 .header-info {
@@ -706,8 +898,17 @@ definePageMeta({
 .widget-messages {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden; /* Important pour éviter le scroll horizontal */
   padding: 16px;
   background: var(--widget-surface);
+}
+
+.messages-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 100%;
 }
 
 /* Message de bienvenue - Style Glotelho */
@@ -766,31 +967,89 @@ definePageMeta({
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Message entrant */
+.message-assistant {
+  align-self: flex-start;
+  background: #f1f3f5;
+  color: var(--widget-dark);
+  border-bottom-left-radius: 4px;
+  max-width: 88%; /* Limite la largeur du message par rapport au chat */
+  width: auto;
+}
+
 .message-user {
   flex-direction: row-reverse;
+  max-width: 88%;
+  align-self: flex-end;
 }
 
 .msg-avatar {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
+  margin-right: 8px;
   flex-shrink: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  background: transparent;
 }
 
-.msg-avatar svg {
+.avatar-img {
   width: 100%;
   height: 100%;
+  object-fit: cover;
+  transform: scale(1.15);
 }
 
 .msg-content {
-  max-width: 80%;
+  flex: 1; /* Prend l'espace restant */
+  min-width: 0; /* CRUCIAL: Permet au flex item de rétrécir sous son contenu minimum */
+  width: 100%;
 }
 
 .msg-text {
-  padding: 10px 14px;
+  padding: 12px 16px;
   border-radius: 14px;
   font-family: var(--font-body);
   font-size: 14px;
   line-height: 1.5;
+  width: fit-content; /* S'adapte au contenu mais respecte max-width du parent */
+  max-width: 100%;    /* Ne dépasse jamais son parent (.msg-content) */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+/* Styles pour le Markdown (Tableaux, etc.) */
+.msg-text :deep(p) {
+  margin-bottom: 8px;
+}
+.msg-text :deep(p:last-child) {
+  margin-bottom: 0;
+}
+.msg-text :deep(ul), .msg-text :deep(ol) {
+  margin-left: 20px;
+  margin-bottom: 8px;
+}
+.msg-text :deep(table) {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  margin: 10px 0;
+  font-size: 13px;
+}
+.msg-text :deep(th), .msg-text :deep(td) {
+  border: 1px solid #e0e0e0;
+  padding: 6px 10px;
+  text-align: left;
+}
+.msg-text :deep(th) {
+  background-color: #f5f5f5;
+  font-weight: 600;
+}
+.msg-text :deep(a) {
+  color: var(--widget-primary);
+  text-decoration: underline;
 }
 
 .message-assistant .msg-text {
@@ -846,77 +1105,188 @@ definePageMeta({
   object-fit: cover;
 }
 
-/* Produits */
-.products-list {
-  margin-top: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+/* ============================================
+   Grille de produits - Style Glotelho
+   ============================================ */
+.products-grid-wrapper {
+  margin-top: 12px;
+  width: 100%;
+  overflow: hidden;
 }
 
-.product-item {
+.products-grid {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 4px 0 8px 0;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--widget-primary) transparent;
+}
+
+.products-grid::-webkit-scrollbar {
+  height: 4px;
+}
+
+.products-grid::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.products-grid::-webkit-scrollbar-thumb {
+  background: var(--widget-primary);
+  border-radius: 2px;
+}
+
+/* Card produit */
+.product-card {
+  flex: 0 0 160px;
+  min-width: 160px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  scroll-snap-align: start;
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+}
+
+.product-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Badge promo */
+.promo-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 3px 8px;
+  background: linear-gradient(135deg, #E63946, #FF6B6B);
+  color: white;
+  font-family: var(--font-heading);
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 4px;
+  z-index: 2;
+  box-shadow: 0 2px 4px rgba(230, 57, 70, 0.3);
+}
+
+/* Image du produit */
+.card-image {
+  width: 100%;
+  height: 120px;
+  background: #f8f8f8;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  justify-content: center;
+  overflow: hidden;
 }
 
-.product-thumb {
-  width: 40px;
-  height: 40px;
-  border-radius: 6px;
-  object-fit: cover;
+.card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.3s;
 }
 
-.product-details {
-  flex: 1;
-  min-width: 0;
+.product-card:hover .card-image img {
+  transform: scale(1.05);
 }
 
-.product-name {
-  display: block;
+.no-image {
+  width: 48px;
+  height: 48px;
+  color: #ccc;
+}
+
+.no-image svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Contenu de la card */
+.card-content {
+  padding: 10px;
+}
+
+.card-title {
   font-family: var(--font-body);
   font-size: 12px;
   font-weight: 600;
   color: var(--widget-text);
-  white-space: nowrap;
+  margin: 0 0 6px 0;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
+  height: 32px;
 }
 
-.product-price {
+/* Prix */
+.card-pricing {
+  margin-bottom: 8px;
+}
+
+.current-price {
+  display: block;
   font-family: var(--font-heading);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
-  color: var(--widget-primary);  /* Orange Glotelho pour les prix */
+  color: var(--widget-dark);
 }
 
-.product-discount {
-  display: inline-block;
-  margin-left: 6px;
-  padding: 2px 6px;
-  font-family: var(--font-heading);
-  font-size: 10px;
-  font-weight: 700;
-  color: white;
-  background: var(--widget-promo);  /* Orange doré pour les promos */
-  border-radius: 4px;
-}
-
-.product-link {
-  font-family: var(--font-heading);
+.old-price {
+  display: block;
+  font-family: var(--font-body);
   font-size: 11px;
-  color: var(--widget-primary);
-  text-decoration: none;
-  font-weight: 600;
-  transition: color 0.2s;
+  color: var(--widget-text-light);
+  text-decoration: line-through;
+  margin-top: 2px;
 }
 
-.product-link:hover {
-  color: var(--widget-primary-dark);
+/* Boutons d'action */
+.card-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-details,
+.btn-buy {
+  flex: 1;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+
+.btn-details {
+  background: var(--widget-surface);
+  color: var(--widget-text);
+}
+
+.btn-details:hover {
+  background: var(--widget-border);
+}
+
+.btn-buy {
+  background: var(--widget-primary);
+  color: white;
+}
+
+.btn-buy:hover {
+  background: var(--widget-primary-dark);
 }
 
 /* ============================================
@@ -1057,6 +1427,281 @@ definePageMeta({
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   Modal de détails produit
+   ============================================ */
+.product-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999999;
+  padding: 20px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.product-modal {
+  background: white;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 420px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: modalSlideUp 0.3s ease-out;
+}
+
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Header du modal */
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: var(--widget-dark);
+  color: white;
+}
+
+.modal-header h3 {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.modal-close {
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.modal-close svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Corps du modal */
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+}
+
+/* Image dans le modal */
+.modal-image {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  background: #f8f8f8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.no-image-large {
+  width: 80px;
+  height: 80px;
+  color: #ccc;
+}
+
+.no-image-large svg {
+  width: 100%;
+  height: 100%;
+}
+
+.modal-promo-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #E63946, #FF6B6B);
+  color: white;
+  font-family: var(--font-heading);
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 6px;
+  box-shadow: 0 3px 10px rgba(230, 57, 70, 0.4);
+}
+
+/* Informations du modal */
+.modal-info {
+  padding: 20px;
+}
+
+.modal-title {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--widget-dark);
+  margin: 0 0 12px 0;
+  line-height: 1.4;
+}
+
+/* Prix dans le modal */
+.modal-pricing {
+  margin-bottom: 12px;
+}
+
+.modal-current-price {
+  font-family: var(--font-heading);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--widget-primary);
+}
+
+.modal-old-price {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--widget-text-light);
+  text-decoration: line-through;
+  margin-left: 10px;
+}
+
+/* Disponibilité */
+.modal-availability {
+  margin-bottom: 16px;
+}
+
+.modal-availability .available {
+  color: #22c55e;
+  font-weight: 600;
+}
+
+.modal-availability .unavailable {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+/* Description */
+.modal-description {
+  margin-bottom: 16px;
+}
+
+.modal-description h4,
+.modal-characteristics h4 {
+  font-family: var(--font-heading);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--widget-dark);
+  margin: 0 0 8px 0;
+}
+
+.modal-description p {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--widget-text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Caractéristiques */
+.modal-characteristics ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.modal-characteristics li {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--widget-text);
+  padding: 6px 0;
+  border-bottom: 1px solid var(--widget-border);
+}
+
+.modal-characteristics li:last-child {
+  border-bottom: none;
+}
+
+.modal-characteristics strong {
+  color: var(--widget-text-secondary);
+}
+
+/* Footer du modal */
+.modal-footer {
+  display: flex;
+  gap: 12px;
+  padding: 16px 20px;
+  background: var(--widget-surface);
+  border-top: 1px solid var(--widget-border);
+}
+
+.modal-btn-buy,
+.modal-btn-view {
+  flex: 1;
+  padding: 14px 20px;
+  border-radius: 10px;
+  font-family: var(--font-heading);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.modal-btn-buy {
+  background: var(--widget-primary);
+  color: white;
+  box-shadow: 0 4px 14px rgba(255, 102, 0, 0.4);
+}
+
+.modal-btn-buy:hover {
+  background: var(--widget-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(255, 102, 0, 0.5);
+}
+
+.modal-btn-view {
+  background: white;
+  color: var(--widget-primary);
+  border: 2px solid var(--widget-primary);
+}
+
+.modal-btn-view:hover {
+  background: #fff8f0;
 }
 
 /* ============================================

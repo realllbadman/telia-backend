@@ -1,9 +1,3 @@
-"""
-Point d'entrée principal de l'application Telia Backend.
-
-Cette application FastAPI fournit une API REST pour un système e-commerce
-avec authentification JWT et intégration Magento 2.
-"""
 
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
