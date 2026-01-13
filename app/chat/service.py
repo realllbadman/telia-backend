@@ -6,14 +6,6 @@ import httpx
 
 
 def _flatten_search_criteria(prefix: str, obj: Any, out: Dict[str, Any]) -> None:
-	"""Recursively flatten a search_criteria structure into Magento bracketed params.
-
-	Examples:
-		{'filter_groups': [{'filters': [{'field': 'sku', 'value': 'ABC'}]}]}
-	becomes:
-		searchCriteria[filter_groups][0][filters][0][field]=sku
-		searchCriteria[filter_groups][0][filters][0][value]=ABC
-	"""
 	if isinstance(obj, dict):
 		for k, v in obj.items():
 			new_prefix = f"{prefix}[{k}]"
@@ -28,35 +20,17 @@ def _flatten_search_criteria(prefix: str, obj: Any, out: Dict[str, Any]) -> None
 
 async def fetch_magento_products(
 	search_criteria: Optional[Dict[str, Any]] = None,
-	page_size: int = 10,
-	max_pages: int = 5,
+	page_size: int = 5,
+	max_pages: int = 10,
 	timeout: float = 30.0,
 ) -> List[Dict[str, Any]]:
-	"""Fetch products from Magento 2 using the REST API `/V1/products`.
-
-	- Reads `MAGENTO_BASE_URL` and `MAGENTO_TOKEN` from environment.
-	- Uses `httpx.AsyncClient`.
-	- Supports `search_criteria` (nested dict) which is flattened into
-	  `searchCriteria[...]` query params expected by Magento.
-	- Handles pagination and basic HTTP errors. Returns a list of product items.
-
-	Args:
-		search_criteria: Nested dict matching Magento searchCriteria structure.
-		page_size: Number of items per page (Magento `searchCriteria[pageSize]`).
-		max_pages: Safety cap on number of pages to fetch.
-		timeout: Request timeout in seconds.
-
-	Returns:
-		List of product item dicts.
-	"""
-	base_url =  "https://staging-site.glotelho.cm/rest/fr/V1/"
-	token =  "smftmxd38fpedqtbg3ydcbe1c6bqwjkq"
-	if not base_url:
-		raise RuntimeError("MAGENTO_BASE_URL environment variable is not set")
+	base_url = os.getenv("MAGENTO_BASE_URL")
+	token = os.getenv("MAGENTO_ACCESS_TOKEN")
+	
 	if not token:
-		raise RuntimeError("MAGENTO_TOKEN environment variable is not set")
+		raise RuntimeError("MAGENTO_ACCESS_TOKEN environment variable is not set")
 
-	endpoint = base_url.rstrip("/") + "/rest/V1/products"
+	endpoint = base_url.rstrip("/") + "/rest/fr/V1/products"
 
 	headers = {"Authorization": f"Bearer {token}", "Accept": "application/json"}
 
@@ -68,11 +42,9 @@ async def fetch_magento_products(
 	async with httpx.AsyncClient(timeout=timeout, headers=headers) as client:
 		while page <= max_pages:
 			params: Dict[str, Any] = {}
-			# add page and pageSize
 			params["searchCriteria[currentPage]"] = page
 			params["searchCriteria[pageSize]"] = page_size
 
-			
 			if search_criteria:
 				flat: Dict[str, Any] = {}
 				_flatten_search_criteria("searchCriteria", search_criteria, flat)
@@ -96,21 +68,16 @@ async def fetch_magento_products(
 						raise RuntimeError("Unexpected response structure: 'items' is not a list")
 					items.extend(page_items)
 
-					# Stop when fewer items than page_size are returned
 					if len(page_items) < page_size:
 						return items
-
-					# otherwise advance to next page
 					page += 1
 					break
 
-				# handle rate limiting or server errors with retry
 				if resp.status_code in (429, 500, 502, 503, 504) and attempt < retries:
 					attempt += 1
 					await asyncio.sleep(0.5 * attempt)
 					continue
 
-				# other errors -> raise with details
 				try:
 					err = resp.json()
 				except Exception:
@@ -118,4 +85,42 @@ async def fetch_magento_products(
 				raise RuntimeError(f"Magento API error {resp.status_code}: {err}")
 
 	return items
+
+
+class ChatService:
+	@staticmethod
+	async def recommend_products(message: str, user_id: int):
+		try:
+			items = await fetch_magento_products(page_size=5, max_pages=10)
+		except Exception:
+			items = []
+
+		recommendations = []
+		for it in items:
+			prod_id = str(it.get("id") or it.get("sku") or "")
+			name = it.get("name") or it.get("custom_attributes", {}).get("name") or ""
+			sku = it.get("sku") or ""
+			price = 0.0
+			if isinstance(it.get("price"), (int, float)):
+				price = float(it.get("price"))
+			else:
+				ca = it.get("custom_attributes")
+				if isinstance(ca, list):
+					for attr in ca:
+						if attr.get("attribute_code") == "price":
+							try:
+								price = float(attr.get("value", 0))
+							except Exception:
+								price = 0.0
+							break
+
+			recommendations.append({
+				"id": prod_id,
+				"name": name,
+				"sku": sku,
+				"price": price,
+				"relevance_score": None,
+			})
+
+		return {"message": f"Recommendations for user {user_id}", "recommendations": recommendations}
 

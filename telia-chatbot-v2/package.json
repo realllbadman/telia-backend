@@ -1,0 +1,27 @@
+{
+  "name": "telia-chatbot",
+  "version": "1.0.0",
+  "description": "Telia Assistant - Chatbot intelligent pour Glotelho",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "@pinia/nuxt": "^0.5.5",
+    "nuxt": "^3.14.0",
+    "pinia": "^2.2.6",
+    "vue": "latest",
+    "vue-router": "latest"
+  },
+  "devDependencies": {
+    "@nuxt/devtools": "latest",
+    "@types/node": "^22.10.1",
+    "typescript": "^5.7.2"
+  }
+}
