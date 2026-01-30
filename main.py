@@ -6,6 +6,13 @@ from app.auth.routes import router as auth_router
 from app.chat.routes import router as chat_router
 from app.auth.dependencies import get_current_user, require_superadmin, require_customer
 from app.models import User, UserRole
+from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get("/ping")
+async def ping():
+    return {"status": "ok"}
 
 # Create database tables
 Base.metadata.create_all(bind=engine)

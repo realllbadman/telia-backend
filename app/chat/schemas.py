@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Optional
 
 
@@ -16,4 +16,4 @@ class ProductRecommendation(BaseModel):
 
 class ChatResponse(BaseModel):
     message: str
-    recommendations: List[ProductRecommendation] = []
+    recommendations: List[ProductRecommendation] = Field(default_factory=list)
