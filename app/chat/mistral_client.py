@@ -7,17 +7,22 @@ class MistralService:
         self.client = Mistral(api_key=settings.MISTRAL_API_KEY)
 
     def analyze_caption(self, caption: str) -> str:
-        response = self.client.chat.completions.create(
-            model=settings.MISTRAL_MODEL,
+        prompt = f"""
+You are optimizing text for an e-commerce product search engine.
+
+Original image description:
+"{caption}"
+
+Rewrite this into a short, precise, search-friendly product description.
+Do NOT add new details. Do NOT guess.
+"""
+
+        response = self.client.chat.complete(
+            model=settings.MISTRAL_TEXT_MODEL,
             messages=[
                 {
                     "role": "user",
-                    "content": (
-                        "The following description was generated from an image:\n\n"
-                        f"\"{caption}\"\n\n"
-                        "Based on this, identify the product or object "
-                        "and give a concise, useful search-friendly description."
-                    ),
+                    "content": prompt,
                 }
             ],
             max_tokens=60,

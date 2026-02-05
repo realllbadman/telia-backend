@@ -4,27 +4,32 @@ from pydantic import ConfigDict, field_validator
 
 
 class Settings(BaseSettings):
-    # 🔐 JWT Configuration
+    # JWT Configuration
     SECRET_KEY: str = "telia-super-secret-key-2024-glotelho"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
-    # 🗄️ Database
+    # Database
     DATABASE_URL: str = "sqlite:///./telia.db"
 
-    # 🚀 Application
+    # Application
     APP_NAME: str = "Glotelho API"
     APP_VERSION: str = "1.0.0"
 
-    # 🛒 Magento Configuration
+    # Magento Configuration
     MAGENTO_BASE_URL: Optional[str] = None
     MAGENTO_ACCESS_TOKEN: Optional[str] = None
+    MAGENTO_TIMEOUT: int = 15
+    MAGENTO_RETRIES: int = 2
+    MAGENTO_STORE_VIEW_EN: str = "en"
+    MAGENTO_STORE_VIEW_FR: str = "fr"
 
-    # 🤖 Mistral Configuration
+    # Mistral Configuration
     MISTRAL_API_KEY: Optional[str] = None
+    MISTRAL_RETRIES: int = 2
 
     # Text-only LLM (chat, search, reasoning)
-    MISTRAL_MODEL: str = "mistral-small-latest"
+    MISTRAL_TEXT_MODEL: str = "mistral-small-latest"
 
     # Vision-capable LLM (image captioning, visual search)
     MISTRAL_VISION_MODEL: str = "pixtral-large-latest"
@@ -34,7 +39,7 @@ class Settings(BaseSettings):
         extra="ignore"
     )
 
-    # ✅ Validate Magento credentials
+    # Validate Magento credentials
     @field_validator("MAGENTO_BASE_URL", "MAGENTO_ACCESS_TOKEN")
     @classmethod
     def validate_magento_config(cls, v: Optional[str], info) -> Optional[str]:
@@ -46,7 +51,7 @@ class Settings(BaseSettings):
             )
         return v.strip()
 
-    # ✅ Validate Mistral key
+    # Validate Mistral key
     @field_validator("MISTRAL_API_KEY")
     @classmethod
     def validate_mistral_key(cls, v: Optional[str]) -> str:
@@ -58,7 +63,7 @@ class Settings(BaseSettings):
         return v.strip()
 
 
-# 🔄 Load settings at application startup
+# Load settings at application startup
 try:
     settings = Settings()
 except ValueError as e:
