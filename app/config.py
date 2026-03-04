@@ -1,3 +1,4 @@
+from pathlib import Path
 from pydantic_settings import BaseSettings
 from typing import Optional
 from pydantic import ConfigDict, field_validator
@@ -34,8 +35,16 @@ class Settings(BaseSettings):
     # Vision-capable LLM (image captioning, visual search)
     MISTRAL_VISION_MODEL: str = "pixtral-large-latest"
 
+    # AssemblyAI ASR Configuration (audio search)
+    ASSEMBLYAI_API_KEY: Optional[str] = None
+    ASSEMBLYAI_SPEECH_MODELS: str = "universal-2"
+    ASSEMBLYAI_POLL_INTERVAL_SECONDS: float = 2.0
+    ASSEMBLYAI_POLL_TIMEOUT_SECONDS: int = 120
+
+    _ENV_PATH = Path(__file__).resolve().parent.parent / ".env"
+
     model_config = ConfigDict(
-        env_file=".env",
+        env_file=str(_ENV_PATH),
         extra="ignore"
     )
 

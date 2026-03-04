@@ -17,3 +17,12 @@ class ProductRecommendation(BaseModel):
 class ChatResponse(BaseModel):
     message: str
     recommendations: List[ProductRecommendation] = Field(default_factory=list)
+
+
+class VideoRecommendationResponse(BaseModel):
+    ok: bool = True
+    language: str
+    source: str = "video"
+    caption: str
+    frames_used: int
+    products: List[ProductRecommendation] = Field(default_factory=list)

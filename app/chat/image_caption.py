@@ -1,5 +1,6 @@
 import asyncio
 import base64
+import re
 import unicodedata
 from typing import Dict, Optional
 
@@ -37,11 +38,17 @@ class ImageCaptionService:
 Vous etes un assistant pour un moteur de recherche de commerce electronique.
 Repondez uniquement en francais.
 
-Fournissez toujours :
+Fournissez toujours exactement :
 QUALITE : BONNE
 CATEGORIE : <une categorie claire comme chaussures, telephone, sac, chemise, ventilateur>
 TITRE : <titre descriptif court>
 ATTRIBUTS : <couleur, materiau, sexe, type>
+PRODUITS_VISIBLES : <liste separee par virgules de produits secondaires, ou aucun>
+
+Regles :
+- CATEGORIE, TITRE et ATTRIBUTS doivent decrire le produit principal (le plus visible, centre ou net).
+- S'il y a plusieurs produits clairs, ajoutez jusqu'a 3 produits supplementaires dans PRODUITS_VISIBLES.
+- Ignorez les personnes et le decor sauf si ce sont les produits a vendre.
 
 Si l'image est floue ou peu claire :
 QUALITE : MAUVAISE
@@ -54,11 +61,17 @@ NE DEVINEZ PAS. Fournissez exactement ces champs.
 You are an assistant for an e-commerce search engine.
 Respond only in English.
 
-Always provide:
+Always provide exactly:
 QUALITY: GOOD
 CATEGORY: <clear product category like shoes, phone, bag, shirt, fan>
 TITLE: <short descriptive title>
 ATTRIBUTES: <color, material, gender, type>
+ALSO_VISIBLE_PRODUCTS: <comma-separated secondary products, or none>
+
+Rules:
+- CATEGORY, TITLE, and ATTRIBUTES must describe the primary sellable product (most visible, centered, or in focus).
+- If multiple products are clearly visible, list up to 3 additional sellable products in ALSO_VISIBLE_PRODUCTS.
+- Ignore people/background unless they are the product itself.
 
 If the image is unclear:
 QUALITY: BAD
@@ -87,11 +100,39 @@ Do NOT guess. Provide exactly these fields.
         def _norm(value: str) -> str:
             return _strip_accents(value).upper().strip()
 
+        def _normalize_product_list(value: str) -> str:
+            cleaned = re.sub(r"\s+", " ", str(value or "").strip())
+            if not cleaned:
+                return ""
+
+            if _norm(cleaned) in {"NONE", "N/A", "NA", "AUCUN", "AUCUNE", "RIEN"}:
+                return ""
+
+            parts = [
+                re.sub(r"\s+", " ", part).strip(" ,.;")
+                for part in re.split(r"[;,]", cleaned)
+            ]
+            deduped: list[str] = []
+            seen: set[str] = set()
+            for part in parts:
+                if not part:
+                    continue
+                normalized_part = _norm(part)
+                if normalized_part in {"NONE", "N/A", "NA", "AUCUN", "AUCUNE", "RIEN"}:
+                    continue
+                if normalized_part in seen:
+                    continue
+                seen.add(normalized_part)
+                deduped.append(part)
+
+            return ", ".join(deduped[:4])
+
         is_bad = False
         reason = ""
         category = ""
         title = ""
         attributes = ""
+        also_visible_products = ""
 
         for raw_line in content.splitlines():
             line = raw_line.strip()
@@ -105,12 +146,19 @@ Do NOT guess. Provide exactly these fields.
             if key in {"QUALITY", "QUALITE"}:
                 if value_norm.startswith("BAD") or value_norm.startswith("MAUVAISE"):
                     is_bad = True
-            elif key in {"CATEGORY", "CATEGORIE"}:
+            elif key in {"CATEGORY", "CATEGORIE", "PRIMARY_CATEGORY", "CATEGORIE_PRINCIPALE"}:
                 category = value
-            elif key in {"TITLE", "TITRE"}:
+            elif key in {"TITLE", "TITRE", "PRIMARY_TITLE", "TITRE_PRINCIPAL"}:
                 title = value
-            elif key in {"ATTRIBUTES", "ATTRIBUTS"}:
+            elif key in {"ATTRIBUTES", "ATTRIBUTS", "PRIMARY_ATTRIBUTES", "ATTRIBUTS_PRINCIPAUX"}:
                 attributes = value
+            elif key in {
+                "ALSO_VISIBLE_PRODUCTS",
+                "PRODUITS_VISIBLES",
+                "SECONDARY_PRODUCTS",
+                "AUTRES_PRODUITS",
+            }:
+                also_visible_products = value
             elif key in {"REASON", "RAISON"}:
                 reason = value
 
@@ -128,7 +176,13 @@ Do NOT guess. Provide exactly these fields.
                 "reason": "Caption could not be parsed",
             }
 
+        also_visible_products = _normalize_product_list(also_visible_products)
         caption = " ".join(filter(None, [category, title, attributes]))
+        if also_visible_products:
+            if language == "fr":
+                caption = f"{caption} Produits visibles: {also_visible_products}"
+            else:
+                caption = f"{caption} Also visible products: {also_visible_products}"
 
         return {"ok": True, "caption": caption, "reason": None}
 
@@ -204,7 +258,7 @@ async def _mistral_complete_with_retry(
                         ],
                     }
                 ],
-                max_tokens=120,
+                max_tokens=180,
             )
         except (
             httpx.ConnectTimeout,
