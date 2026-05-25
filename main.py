@@ -5,24 +5,20 @@ from app.database import engine, Base
 from app.auth.routes import router as auth_router
 from app.chat.routes import router as chat_router
 from app.auth.dependencies import get_current_user, require_superadmin, require_customer
-from app.models import User, UserRole
-from fastapi import FastAPI
-
-app = FastAPI()
-
-@app.get("/ping")
-async def ping():
-    return {"status": "ok"}
+from app.models import User
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
 
-# Initialize FastAPI app
 app = FastAPI(
     title=settings.APP_NAME,
     description="AI-powered e-commerce backend with Gemini & Magento 2 - JWT Authentication",
     version=settings.APP_VERSION
 )
+
+@app.get("/ping")
+async def ping():
+    return {"status": "ok"}
 
 # Configure CORS
 app.add_middleware(

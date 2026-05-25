@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 import re
@@ -9,6 +10,23 @@ from mistralai import Mistral
 from app.config import settings
 
 logger = logging.getLogger(__name__)
+
+# Singleton client — created once, reused for all requests (saves SSL handshake per call)
+_mistral_client: Optional[Mistral] = None
+
+# Limit concurrent Mistral calls to avoid hammering the rate limit when
+# multiple parallel queries fire at the same time (e.g. multi-product search).
+_MISTRAL_SEMAPHORE = asyncio.Semaphore(2)
+
+def _get_mistral_client() -> Mistral:
+    global _mistral_client
+    if _mistral_client is None:
+        _mistral_client = Mistral(api_key=settings.MISTRAL_API_KEY)
+    return _mistral_client
+
+# Simple query result cache — avoids calling Mistral for identical queries
+_QUERY_CACHE: Dict[str, Any] = {}
+_QUERY_CACHE_MAX = 256
 
 
 class UnifiedQueryAIService:
@@ -145,11 +163,16 @@ class UnifiedQueryAIService:
     }
 
     @staticmethod
-    def process_raw_query(input_text: str, language: str) -> Dict[str, Any]:
+    async def process_raw_query(input_text: str, language: str) -> Dict[str, Any]:
         preferred_language = UnifiedQueryAIService._normalize_language_hint(language)
         cleaned_text = UnifiedQueryAIService._normalize_whitespace(str(input_text or ""))
         if not cleaned_text:
             return UnifiedQueryAIService._empty_payload(preferred_language or "en")
+
+        # Cache hit — skip Mistral entirely for repeated queries
+        cache_key = f"{language}:{cleaned_text}"
+        if cache_key in _QUERY_CACHE:
+            return _QUERY_CACHE[cache_key]
 
         detected_language, is_mixed_language = UnifiedQueryAIService._detect_language(
             input_text=cleaned_text,
@@ -165,33 +188,64 @@ class UnifiedQueryAIService:
             detected_language=detected_language,
             is_mixed_language=is_mixed_language,
         )
-        try:
-            client = Mistral(api_key=settings.MISTRAL_API_KEY)
-            response = client.chat.complete(
-                model=settings.MISTRAL_TEXT_MODEL,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": (
-                            "You are a commerce query intelligence engine. "
-                            "Return strict JSON only with the requested schema."
-                        ),
-                    },
-                    {"role": "user", "content": prompt},
-                ],
-                temperature=0,
-                max_tokens=420,
-            )
-            raw_content = UnifiedQueryAIService._extract_content_text(response)
-            parsed = UnifiedQueryAIService._parse_json_content(raw_content)
-            return UnifiedQueryAIService._coerce_payload(
-                payload=parsed,
-                language=output_language,
-                source_text=cleaned_text,
-            )
-        except Exception as exc:
-            logger.warning("Unified query AI failed, using fallback normalization: %s", exc)
-            return UnifiedQueryAIService._fallback_payload(cleaned_text, output_language)
+        # Retry up to 3 times with exponential back-off for 429 rate-limit responses.
+        # Other errors fall through immediately to the fallback.
+        _MAX_RETRIES = 3
+        _RETRY_DELAYS = [1.0, 2.0, 4.0]  # seconds between attempts
+
+        messages = [
+            {
+                "role": "system",
+                "content": (
+                    "You are the intelligence layer of the Telia AI shopping assistant. "
+                    "Your role is to understand user intent (even if vague, misspelled, or emotionally phrased), "
+                    "rewrite it into clean, concrete product-focused search queries, and return strict JSON only. "
+                    "NEVER return empty keywords — always make the best logical inference from context. "
+                    "Always normalize product category names to English regardless of input language."
+                ),
+            },
+            {"role": "user", "content": prompt},
+        ]
+
+        last_exc: Optional[Exception] = None
+        for attempt in range(_MAX_RETRIES):
+            try:
+                client = _get_mistral_client()
+                async with _MISTRAL_SEMAPHORE:
+                    response = await client.chat.complete_async(
+                        model=settings.MISTRAL_TEXT_MODEL,
+                        messages=messages,
+                        temperature=0,
+                        max_tokens=420,
+                    )
+                raw_content = UnifiedQueryAIService._extract_content_text(response)
+                parsed = UnifiedQueryAIService._parse_json_content(raw_content)
+                result = UnifiedQueryAIService._coerce_payload(
+                    payload=parsed,
+                    language=output_language,
+                    source_text=cleaned_text,
+                )
+                # Store in cache — evict oldest entry if full
+                if len(_QUERY_CACHE) >= _QUERY_CACHE_MAX:
+                    _QUERY_CACHE.pop(next(iter(_QUERY_CACHE)))
+                _QUERY_CACHE[cache_key] = result
+                return result
+            except Exception as exc:
+                last_exc = exc
+                exc_str = str(exc)
+                # Only retry on rate-limit (429); bail immediately on other errors
+                is_rate_limit = "429" in exc_str or "capacity exceeded" in exc_str.lower()
+                if not is_rate_limit or attempt >= _MAX_RETRIES - 1:
+                    break
+                wait = _RETRY_DELAYS[attempt]
+                logger.warning(
+                    "Mistral 429 rate-limit on attempt %d/%d — retrying in %.1fs",
+                    attempt + 1, _MAX_RETRIES, wait,
+                )
+                await asyncio.sleep(wait)
+
+        logger.warning("Unified query AI failed, using fallback normalization: %s", last_exc)
+        return UnifiedQueryAIService._fallback_payload(cleaned_text, output_language)
 
     @staticmethod
     def _build_prompt(
@@ -201,54 +255,88 @@ class UnifiedQueryAIService:
         is_mixed_language: bool,
     ) -> str:
         return f"""
-You are processing a raw commerce search query.
+You are the intelligence layer of the Telia AI shopping assistant.
 
 Detected input language: {detected_language}
 Mixed language input: {"yes" if is_mixed_language else "no"}
 Required output language: {output_language}
-Raw input:
-{input_text}
+Raw input: {input_text}
 
-Tasks:
-1. Normalize text
-2. Fix grammar
-3. Normalize synonyms (laptop/notebook, fan/ventilator, phone/mobile)
-4. Extract intent
-5. Detect category
-6. Extract attributes
-7. Extract user type (student, gamer, business, etc.)
-8. Extract budget if present
-9. Detect constraints
-10. Structure a semantic commerce query
-11. Output strict JSON only
-12. Infer price_class when user indicates budget quality (budget, low-budget, mid-range, premium)
+━━━ CORE RULES ━━━
 
-Rules:
-- Do not guess prices
-- Do not hallucinate brands
-- Infer intent from vague language when possible
-- Prefer semantic meaning over literal words
-- Return JSON only, no markdown, no explanations
-- Add intent-reasoned keywords when useful (example: "student laptop", "budget smartphone")
-- Keep output in the required output language.
-- Do not translate unless input is mixed EN/FR.
+1. UNDERSTAND — even vague, emotional, or poorly written requests.
+2. REWRITE — turn messy input into clean, product-focused search terms.
+3. NEVER LOSE MEANING — if the user mentions multiple needs, capture all of them in keywords.
+4. NEVER RETURN EMPTY — always make a best logical guess from context.
+5. NORMALIZE TO ENGLISH — category and keywords must be in English regardless of input language.
 
-Output schema (strict):
+━━━ INTENT REWRITING EXAMPLES ━━━
+
+"I need a laptop for my kid"
+→ category: "laptop", keywords: ["student laptop", "budget laptop", "lightweight laptop"]
+
+"something for office accounting"
+→ category: "laptop", keywords: ["business laptop", "laptop SSD", "laptop 8GB RAM"]
+
+"table for kids"
+→ category: "desk", keywords: ["kids table", "study table", "children desk"]
+
+"cheap phone with good battery"
+→ category: "smartphone", keywords: ["budget smartphone", "long battery smartphone"]
+
+"je cherche quelque chose pour refroidir ma chambre"
+→ category: "fan", keywords: ["fan", "room fan", "cooling fan", "air cooler"]
+
+"bon écran pour travailler"
+→ category: "monitor", keywords: ["monitor", "work monitor", "office display"]
+
+━━━ LANGUAGE HANDLING ━━━
+
+Always output category and keywords in English.
+French → English product mapping:
+  "ordinateur portable" → "laptop"
+  "ventilateur" → "fan"
+  "téléphone" / "telephone" → "smartphone"
+  "tablette" → "tablet"
+  "écran" / "moniteur" → "monitor"
+  "casque" → "headphones"
+  "enceinte" → "speaker"
+Mixed input: extract the category from whichever language signal is clearest.
+
+━━━ BUDGET EXTRACTION ━━━
+
+- "under X", "less than X", "below X", "moins de X", "maximum X", "max X" → budget.max = X
+- "over X", "more than X", "at least X", "minimum X", "à partir de X" → budget.min = X
+- "between X and Y", "entre X et Y" → budget.min = X, budget.max = Y
+- Currency: XAF / FCFA / F CFA → "XAF"; otherwise leave empty
+- "je veux un laptop de 200000" → budget.max = 200000 (shopping budget context)
+
+━━━ TASKS ━━━
+
+1. Identify the product category (laptop, smartphone, fan, headphones, tablet, monitor, speaker, etc.)
+2. Extract all relevant search keywords — rewrite vague language into product-focused terms
+3. Extract specs/attributes (color, storage, screen size, battery, RAM, etc.)
+4. Infer use_case from context (gaming, education, business, travel, room cooling, etc.)
+5. Infer user_type if mentioned (student, gamer, business professional, creator, etc.)
+6. Extract budget constraints following the rules above
+7. Output strict JSON only — no markdown, no explanation
+
+Output schema (strict JSON):
 {{
-  "category": "",
-  "keywords": [],
-  "attributes": [],
-  "use_case": "",
-  "user_type": "",
-  "price_class": "",
+  "category": "<product category in English>",
+  "keywords": ["<concrete product-focused search terms — rewritten from vague input>"],
+  "attributes": ["<specs: color, storage, screen size, RAM, battery, etc.>"],
+  "use_case": "<gaming|education|business|travel|room cooling|etc.>",
+  "user_type": "<student|gamer|business|creator|etc.>",
+  "price_class": "<budget|low-budget|mid-range|premium — only if indicated>",
   "budget": {{
     "min": null,
     "max": null,
-    "currency": ""
+    "currency": "<XAF|USD|EUR|etc. or empty>"
   }},
-  "priority_terms": [],
+  "priority_terms": ["<2-4 most important search terms>"],
   "negative_terms": [],
-  "language": "en|fr",
+  "language": "{output_language}",
   "confidence": 0.0
 }}
 """.strip()

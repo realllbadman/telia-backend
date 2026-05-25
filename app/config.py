@@ -19,11 +19,14 @@ class Settings(BaseSettings):
 
     # Magento Configuration
     MAGENTO_BASE_URL: Optional[str] = None
+    MAGENTO_MEDIA_BASE_URL: Optional[str] = None
     MAGENTO_ACCESS_TOKEN: Optional[str] = None
-    MAGENTO_TIMEOUT: int = 15
-    MAGENTO_RETRIES: int = 2
+    MAGENTO_TIMEOUT: int = 8
+    MAGENTO_RETRIES: int = 1
     MAGENTO_STORE_VIEW_EN: str = "en"
     MAGENTO_STORE_VIEW_FR: str = "fr"
+    MAGENTO_CACHE_TTL_SECONDS: int = 300
+    MAGENTO_CACHE_MAX_ITEMS: int = 512
 
     # Mistral Configuration
     MISTRAL_API_KEY: Optional[str] = None
@@ -35,11 +38,21 @@ class Settings(BaseSettings):
     # Vision-capable LLM (image captioning, visual search)
     MISTRAL_VISION_MODEL: str = "pixtral-large-latest"
 
+    # Typesense Configuration (fast product search cache)
+    TYPESENSE_HOST: Optional[str] = None          # e.g. "localhost"
+    TYPESENSE_PORT: int = 8108
+    TYPESENSE_PROTOCOL: str = "http"
+    TYPESENSE_API_KEY: Optional[str] = None       # any string when self-hosted
+    TYPESENSE_COLLECTION: str = "telia_products"
+
     # AssemblyAI ASR Configuration (audio search)
     ASSEMBLYAI_API_KEY: Optional[str] = None
     ASSEMBLYAI_SPEECH_MODELS: str = "universal-2"
     ASSEMBLYAI_POLL_INTERVAL_SECONDS: float = 2.0
     ASSEMBLYAI_POLL_TIMEOUT_SECONDS: int = 120
+
+    # Video Search Performance
+    VIDEO_ENABLE_AUDIO_FUSION: bool = False
 
     _ENV_PATH = Path(__file__).resolve().parent.parent / ".env"
 

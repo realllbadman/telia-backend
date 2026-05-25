@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/HP/OneDrive/Documents/Telia/telia-backend/$USERPROFILE/.pm2/**)",
+      "Bash(.venv/Scripts/python -c \"from app.chat.service import ChatService; print\\(''OK''\\)\")",
+      "Bash(.venv/Scripts/python -c \"from app.chat.service import ChatService, _fetch_bilingual_products, _expand_keywords_bilingual; print\\(''OK''\\)\")",
+      "Bash(.venv/Scripts/python -c \"from app.chat.service import ChatService, _MAGENTO_KEYWORD_STOPWORDS; print\\(''OK, stopwords sample:'', list\\(_MAGENTO_KEYWORD_STOPWORDS\\)[:5]\\)\")",
+      "Bash(.venv/Scripts/python -c \"from app.chat.service import fetch_magento_products, _fetch_bilingual_products, _search_typesense, _expand_keywords_bilingual; print\\('OK'\\)\")"
+    ]
+  }
+}

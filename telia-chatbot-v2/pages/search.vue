@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <main class="page-shell">
     <div class="bg-orb orb-left"></div>
     <div class="bg-orb orb-right"></div>
@@ -6,9 +6,9 @@
     <section class="hero">
       <div>
         <p class="eyebrow">Smart Product Discovery</p>
-        <h1>Find products by text, image, audio, or video</h1>
+        <h1>What can I help you find?</h1>
         <p class="hero-subtitle">
-          Search the catalog faster with natural language, visual matching, voice queries, and short videos.
+          Use one search bar for text, image, and video. Use microphone search from the same composer.
         </p>
       </div>
 
@@ -31,35 +31,21 @@
       @logout="handleLogout"
     />
 
-    <section class="searches" :class="{ blocked: !isAuthenticated }">
-      <TextSearch
+    <section class="composer-shell" :class="{ blocked: !isAuthenticated }">
+      <UnifiedSearchBar
         :language="language"
-        :loading="textLoading"
-        :disabled="textDisabled"
-        @search="handleTextSearch"
-      />
-      <ImageSearch
-        :language="language"
-        :loading="imageLoading"
-        :disabled="imageDisabled"
-        @search="handleImageSearch"
-      />
-      <AudioSearch
-        :language="language"
-        :loading="audioLoading"
-        :disabled="audioDisabled"
-        @search="handleAudioSearch"
-      />
-      <VideoSearch
-        :language="language"
-        :loading="videoLoading"
-        :disabled="videoDisabled"
-        @search="handleVideoSearch"
+        :loading="loading"
+        :disabled="composerDisabled"
+        @text-search="handleTextSearch"
+        @image-search="handleImageSearch"
+        @video-search="handleVideoSearch"
+        @document-select="handleDocumentSelect"
+        @audio-search="handleAudioSearch"
       />
     </section>
 
     <p v-if="!isAuthenticated" class="auth-note">
-      Sign in above to use text, image, audio, and video recommendations.
+      Sign in above to use text, image, video, and audio recommendations.
     </p>
 
     <section class="status-area" aria-live="polite">
@@ -70,33 +56,49 @@
       </p>
     </section>
 
-    <section v-if="generatedCaption" class="caption-area" aria-live="polite">
-      <p class="caption-label">Generated caption</p>
+    <div v-if="generatedCaption && isGeneratedCaptionVisible" class="caption-toggle">
+      <button type="button" class="ghost" @click="showCaption = !showCaption">
+        {{ showCaption ? 'Hide generated caption' : 'Show generated caption' }}
+      </button>
+    </div>
+
+    <section v-if="generatedCaption && isGeneratedCaptionVisible && showCaption" class="caption-area" aria-live="polite">
+      <p class="caption-label">Generated search caption</p>
       <p class="caption-text">{{ generatedCaption }}</p>
     </section>
 
-    <ProductGrid :products="recommendations" :loading="loading" :language="language" />
+    <ProductGrid
+      :products="recommendations"
+      :groups="groups"
+      :loading="loading"
+      :language="language"
+      @product-click="handleProductClick"
+      @view-all="handleViewAll"
+    />
   </main>
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 
 const language = ref('en')
 const textLoading = ref(false)
-const imageLoading = ref(false)
+const mediaLoading = ref(false)
 const audioLoading = ref(false)
-const videoLoading = ref(false)
 const loading = computed(() => (
   textLoading.value
-  || imageLoading.value
+  || mediaLoading.value
   || audioLoading.value
-  || videoLoading.value
 ))
+
 const error = ref('')
 const recommendations = ref([])
+const groups = ref([])          // grouped results for multi-intent (image + text)
 const hasSearched = ref(false)
 const generatedCaption = ref('')
+const lastSearchSource = ref('')
+const showCaption = ref(false)
+let latestTextRequestId = 0
 
 const { recommendByText, recommendByImage, recommendByAudio, recommendByVideo } = useApi()
 const {
@@ -112,10 +114,8 @@ const {
 } = useAuth()
 
 const authUser = computed(() => user.value)
-const textDisabled = computed(() => loading.value && !textLoading.value)
-const imageDisabled = computed(() => loading.value && !imageLoading.value)
-const audioDisabled = computed(() => loading.value && !audioLoading.value)
-const videoDisabled = computed(() => loading.value && !videoLoading.value)
+const composerDisabled = computed(() => !isAuthenticated.value)
+const isGeneratedCaptionVisible = computed(() => ['image', 'audio', 'video'].includes(lastSearchSource.value))
 
 const sessionLabel = computed(() => {
   const seconds = tokenRemainingSeconds.value
@@ -138,10 +138,11 @@ watch(
       error.value = 'Session expired. Please sign in again.'
       recommendations.value = []
       textLoading.value = false
-      imageLoading.value = false
+      mediaLoading.value = false
       audioLoading.value = false
-      videoLoading.value = false
       generatedCaption.value = ''
+      lastSearchSource.value = ''
+      showCaption.value = false
     }
   },
   { immediate: true }
@@ -159,13 +160,15 @@ const handleLogin = async ({ identifier, password }) => {
 const handleLogout = () => {
   logout()
   recommendations.value = []
+  groups.value = []
   hasSearched.value = false
   error.value = ''
   textLoading.value = false
-  imageLoading.value = false
+  mediaLoading.value = false
   audioLoading.value = false
-  videoLoading.value = false
   generatedCaption.value = ''
+  lastSearchSource.value = ''
+  showCaption.value = false
 }
 
 const getApiErrorMessage = (err, fallbackMessage) => {
@@ -201,43 +204,88 @@ const ensureAuth = () => {
 }
 
 const handleTextSearch = async ({ message, language }) => {
-  if (loading.value) return
+  if (mediaLoading.value || audioLoading.value) return
   if (!ensureAuth()) return
 
+  const requestId = ++latestTextRequestId
   textLoading.value = true
   error.value = ''
+  groups.value = []
   hasSearched.value = true
   generatedCaption.value = ''
+  lastSearchSource.value = 'text'
+  showCaption.value = false
 
   try {
     const response = await recommendByText({ message, language })
+    if (requestId !== latestTextRequestId) return
     recommendations.value = response?.recommendations || []
+    groups.value = response?.groups || []
   } catch (err) {
+    if (requestId !== latestTextRequestId) return
     error.value = getApiErrorMessage(err, 'Failed to fetch text recommendations.')
     recommendations.value = []
+    groups.value = []
   } finally {
-    textLoading.value = false
+    if (requestId === latestTextRequestId) {
+      textLoading.value = false
+    }
   }
 }
 
-const handleImageSearch = async ({ file, language }) => {
+const handleImageSearch = async ({ file, language, hint = '' }) => {
   if (loading.value) return
   if (!ensureAuth()) return
 
-  imageLoading.value = true
+  mediaLoading.value = true
   error.value = ''
   hasSearched.value = true
   generatedCaption.value = ''
+  lastSearchSource.value = 'image'
+  showCaption.value = false
 
   try {
-    const response = await recommendByImage({ file, language })
+    const response = await recommendByImage({ file, language, hint })
     recommendations.value = response?.recommendations || []
+    groups.value = response?.groups || []
+    generatedCaption.value = (response?.caption || '').trim()
   } catch (err) {
     error.value = getApiErrorMessage(err, 'Failed to fetch image recommendations.')
     recommendations.value = []
+    groups.value = []
+    generatedCaption.value = ''
   } finally {
-    imageLoading.value = false
+    mediaLoading.value = false
   }
+}
+
+const handleVideoSearch = async ({ file, language, hint = '' }) => {
+  if (loading.value) return
+  if (!ensureAuth()) return
+
+  mediaLoading.value = true
+  error.value = ''
+  hasSearched.value = true
+  generatedCaption.value = ''
+  lastSearchSource.value = ''
+  showCaption.value = false
+
+  try {
+    const response = await recommendByVideo({ file, language, hint })
+    generatedCaption.value = (response?.caption || '').trim()
+    lastSearchSource.value = response?.source || 'video'
+    recommendations.value = response?.products || response?.recommendations || []
+  } catch (err) {
+    error.value = getApiErrorMessage(err, 'Failed to fetch video recommendations.')
+    recommendations.value = []
+    generatedCaption.value = ''
+  } finally {
+    mediaLoading.value = false
+  }
+}
+
+const handleDocumentSelect = ({ file }) => {
+  error.value = `Document upload is not available yet: ${file?.name || 'selected file'}`
 }
 
 const handleAudioSearch = async ({ file, language }) => {
@@ -248,10 +296,13 @@ const handleAudioSearch = async ({ file, language }) => {
   error.value = ''
   hasSearched.value = true
   generatedCaption.value = ''
+  lastSearchSource.value = 'audio'
+  showCaption.value = false
 
   try {
     const response = await recommendByAudio({ file, language })
     recommendations.value = response?.recommendations || []
+    generatedCaption.value = (response?.caption || '').trim()
   } catch (err) {
     error.value = getApiErrorMessage(err, 'Failed to fetch audio recommendations.')
     recommendations.value = []
@@ -260,26 +311,15 @@ const handleAudioSearch = async ({ file, language }) => {
   }
 }
 
-const handleVideoSearch = async ({ file, language }) => {
-  if (loading.value) return
-  if (!ensureAuth()) return
+// Product card click — extend this to open a detail modal/page when ready
+const handleProductClick = (product) => {
+  // placeholder: log for now, wire to router or modal later
+  console.info('[product-click]', product.sku, product.name)
+}
 
-  videoLoading.value = true
-  error.value = ''
-  hasSearched.value = true
-  generatedCaption.value = ''
-
-  try {
-    const response = await recommendByVideo({ file, language })
-    generatedCaption.value = response?.caption || ''
-    recommendations.value = response?.products || []
-  } catch (err) {
-    error.value = getApiErrorMessage(err, 'Failed to fetch video recommendations.')
-    recommendations.value = []
-    generatedCaption.value = ''
-  } finally {
-    videoLoading.value = false
-  }
+// "View all →" click — extend to navigate or filter by category
+const handleViewAll = (category) => {
+  console.info('[view-all]', category)
 }
 </script>
 
@@ -377,15 +417,12 @@ h1 {
   color: #e5efff;
 }
 
-.searches {
+.composer-shell {
   margin-top: 1rem;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1rem;
   transition: opacity 0.2s ease;
 }
 
-.searches.blocked {
+.composer-shell.blocked {
   opacity: 0.62;
 }
 
@@ -426,6 +463,24 @@ h1 {
   border-color: #166534;
 }
 
+.caption-toggle {
+  margin-top: 0.4rem;
+}
+
+.caption-toggle .ghost {
+  border: 1px solid #164e63;
+  border-radius: 999px;
+  background: #0b1220;
+  color: #67e8f9;
+  padding: 0.35rem 0.85rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.caption-toggle .ghost:hover {
+  border-color: #0ea5a4;
+}
+
 .caption-area {
   margin-top: 0.4rem;
   border: 1px solid #164e63;
@@ -449,12 +504,6 @@ h1 {
   line-height: 1.35;
 }
 
-@media (max-width: 1400px) {
-  .searches {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
 @media (max-width: 900px) {
   .hero {
     align-items: start;
@@ -463,10 +512,6 @@ h1 {
 
   .language-panel {
     min-width: 100%;
-  }
-
-  .searches {
-    grid-template-columns: 1fr;
   }
 }
 </style>

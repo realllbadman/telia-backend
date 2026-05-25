@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(.venv/Scripts/python -c ':*)",
+      "Bash(.venv/Scripts/python -m app.typesense_sync)",
+      "Bash(.venv/Scripts/python -c \"from app.chat.service import ChatService; print\\('OK'\\)\")",
+      "Bash(python -c ':*)",
+      "Bash(python -c \"import ast; ast.parse\\(open\\('app/chat/mistral_decision.py'\\).read\\(\\)\\); ast.parse\\(open\\('app/chat/service.py'\\).read\\(\\)\\); print\\('OK'\\)\")",
+      "Bash(python)"
+    ]
+  }
+}
